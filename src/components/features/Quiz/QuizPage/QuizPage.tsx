@@ -1,47 +1,12 @@
-import React, { type ErrorInfo } from 'react';
+import React from 'react';
 import { useQuizContext } from '../../../../context/QuizContext';
 import { useQuizGameLogic } from './hooks/useQuizGameLogic';
 import { ModalManager } from '../../../common/ModalManager/ModalManager';
 import ContentContainer from '../../../layout/ContentContainer/ContentContainer';
+import { ErrorBoundary } from './ErrorBoundary';
 import styles from './QuizPage.module.css';
 import PCImage from '../../../../assets/images/PC_horizontal_1line_black.svg';
 import { Category, QuizBlock } from '../../../../types/quiz.types';
-
-interface ErrorBoundaryState {
-  hasError: boolean;
-  error: Error | null;
-}
-
-class QuizErrorBoundary extends React.Component<{ children: React.ReactNode }, ErrorBoundaryState> {
-  state = { hasError: false, error: null };
-
-  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
-    return { hasError: true, error };
-  }
-
-  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('Quiz error:', error, errorInfo);
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return (
-        <div className={styles.errorContainer}>
-          <h1>Что-то пошло не так</h1>
-          <p>{this.state.error?.message}</p>
-          <button 
-            className={styles.reloadButton}
-            onClick={() => window.location.reload()}
-          >
-            Перезагрузить страницу
-          </button>
-        </div>
-      );
-    }
-
-    return this.props.children;
-  }
-}
 
 const QuizPage: React.FC = () => {
   const { quizStates, currentQuizId, data } = useQuizContext();
@@ -76,7 +41,7 @@ const QuizPage: React.FC = () => {
   }, [handleBlockSelect]);
 
   return (
-    <QuizErrorBoundary>
+    <ErrorBoundary>
       <div className={styles.quiz_page}>
         <img 
           src={PCImage} 
@@ -111,7 +76,7 @@ const QuizPage: React.FC = () => {
           onMainMenu={handleMainMenu}
         />
       </div>
-    </QuizErrorBoundary>
+    </ErrorBoundary>
   );
 };
 
