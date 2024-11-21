@@ -6,28 +6,35 @@ interface QuizData {
   mode: number;
   name: string;
   categories: Category[];
+  "quiz name"?: string;
 }
+
+// Простая функция для загрузки JSON файлов
+const requireJsonFiles = () => {
+  try {
+    const context = require.context('../data', false, /\.json$/);
+    return context.keys().map(key => ({
+      data: context(key),
+      filename: key
+    }));
+  } catch {
+    return [];
+  }
+};
 
 export function loadJsonDataFiles(): QuizData[] {
   try {
-    const context = require.context('../data', false, /\.json$/);
-    const files = context.keys();
-    console.log('Found JSON files:', files);
-
-    return files.map(key => {
-      const data = context(key);
-      return {
-        ...data,
-        name: data["quiz name"] || 'Unnamed Quiz',
-        filename: key
-      };
-    });
-  } catch (error: unknown) {
+    const files = requireJsonFiles();
+    return files.map(({ data }) => ({
+      ...data,
+      name: data["quiz name"] || 'Unnamed Quiz'
+    }));
+  } catch (error) {
     if (error instanceof Error) {
       console.error('Error loading JSON files:', error);
-      handleError(error, 'Не вдалося завантажити файли вікторини.');
+      handleError(error, 'Не удалось загрузить файлы викторины.');
     } else {
-      handleError(new Error('Неизвестная ошибка'), 'Не вдалося завантажити файли вікторини.');
+      handleError(new Error('Неизвестная ошибка'), 'Не удалось загрузить файлы викторины.');
     }
     return [];
   }
@@ -46,27 +53,25 @@ export function loadUniqueUuids(): QuizData[] {
     const uniqueUuids = Array.from(new Set(dataFiles.map(file => file.uuid)));
     console.log('Found unique UUIDs:', uniqueUuids);
 
-    const uniqueQuizzes = uniqueUuids.map(uuid => {
-      const quizData = dataFiles.find(file => file.uuid === uuid);
-      if (!quizData) {
-        throw new Error(`Quiz data not found for UUID: ${uuid}`);
-      }
-      return {
-        uuid: quizData.uuid,
-        mode: quizData.mode,
-        name: quizData.name,
-        categories: quizData.categories || []
-      };
-    });
-
-    console.log('Processed unique quizzes:', uniqueQuizzes);
-    return uniqueQuizzes;
-  } catch (error: unknown) {
+    return uniqueUuids
+      .map(uuid => {
+        const quizData = dataFiles.find(file => file.uuid === uuid);
+        if (!quizData) return null;
+        
+        return {
+          uuid: quizData.uuid,
+          mode: quizData.mode,
+          name: quizData.name,
+          categories: quizData.categories || []
+        };
+      })
+      .filter((quiz): quiz is QuizData => quiz !== null);
+  } catch (error) {
     if (error instanceof Error) {
       console.error('Error processing unique UUIDs:', error);
-      handleError(error, 'Помилка при обробці даних вікторини.');
+      handleError(error, 'Ошибка при обработке данных викторины.');
     } else {
-      handleError(new Error('Неизвестная ошибка'), 'Помилка при обробці даних вікторини.');
+      handleError(new Error('Неизвестная ошибка'), 'Ошибка при обработке данных викторины.');
     }
     return [];
   }
@@ -83,7 +88,6 @@ export function loadJsonDataByMode(mode: number): QuizData | null {
     }
 
     const modeData = dataFiles.find(file => file.mode === mode);
-    
     if (!modeData) {
       console.warn(`No quiz found for mode: ${mode}`);
       return null;
@@ -96,12 +100,12 @@ export function loadJsonDataByMode(mode: number): QuizData | null {
       name: modeData.name,
       categories: modeData.categories || []
     };
-  } catch (error: unknown) {
+  } catch (error) {
     if (error instanceof Error) {
       console.error('Error loading quiz by mode:', error);
-      handleError(error, 'Не вдалося завантажити дані для вибраного режиму гри.');
+      handleError(error, 'Не удалось загрузить данные для выбранного режима игры.');
     } else {
-      handleError(new Error('Неизвестная ошибка'), 'Не вдалося завантажити дані для вибраного режиму гри.');
+      handleError(new Error('Неизвестная ошибка'), 'Не удалось загрузить данные для выбранного режима игры.');
     }
     return null;
   }
@@ -109,16 +113,16 @@ export function loadJsonDataByMode(mode: number): QuizData | null {
 
 export function loadJsonFileCount(): number {
   try {
-    const context = require.context('../data', false, /\.json$/);
-    const count = context.keys().length;
+    const files = requireJsonFiles();
+    const count = files.length;
     console.log('Total quiz files found:', count);
     return count;
-  } catch (error: unknown) {
+  } catch (error) {
     if (error instanceof Error) {
       console.error('Error counting quiz files:', error);
-      handleError(error, 'Не вдалося підрахувати кількість файлів вікторини.');
+      handleError(error, 'Не удалось подсчитать количество файлов викторины.');
     } else {
-      handleError(new Error('Неизвестная ошибка'), 'Не вдалося підрахувати кількість файлів вікторини.');
+      handleError(new Error('Неизвестная ошибка'), 'Не удалось подсчитать количество файлов викторины.');
     }
     return 0;
   }

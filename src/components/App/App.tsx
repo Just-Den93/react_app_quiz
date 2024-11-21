@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import QuizPage from '../features/Quiz/QuizPage/QuizPage';
 import QuizCard from '../features/Quiz/QuizCard/QuizCard';
-import Sidebar from '../layout/Sidebar/Sidebar';
+import Sidebar from '../layout/Sidebar/Sidebar'; 
 import styles from './App.module.css';
 import { useQuizContext } from '../../context/QuizContext';
 import { loadUniqueUuids } from '../../utils/loadJsonData';
