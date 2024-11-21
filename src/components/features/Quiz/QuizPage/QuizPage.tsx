@@ -1,6 +1,6 @@
 import React, { type ErrorInfo } from 'react';
 import { useQuizContext } from '../../../../context/QuizContext';
-import { useQuizGameLogic } from '../../../../hooks/useQuizGameLogic';
+import { useQuizGameLogic } from './hooks/useQuizGameLogic';
 import { ModalManager } from '../../../common/ModalManager/ModalManager';
 import ContentContainer from '../../../layout/ContentContainer/ContentContainer';
 import styles from './QuizPage.module.css';
