@@ -1,57 +1,118 @@
-import React from 'react';
-import ContentContainer from '../../../layout/ContentContainer/ContentContainer';
-import ConfettiAnimation from '../../Game/Animation/ConfettiAnimation';
-import { QuizModals } from './QuizModals';
-import styles from './QuizPage.module.css';
+import React, { type ErrorInfo } from 'react';
+import { useQuizContext } from '../../../../context/QuizContext';
 import { useQuizGameLogic } from '../../../../hooks/useQuizGameLogic';
-import { useQuizModals } from '../../../../hooks/useQuizModals';
+import { ModalManager } from '../../../common/ModalManager/ModalManager';
+import ContentContainer from '../../../layout/ContentContainer/ContentContainer';
+import styles from './QuizPage.module.css';
 import PCImage from '../../../../assets/images/PC_horizontal_1line_black.svg';
+import { Category, QuizBlock } from '../../../../types/quiz.types';
 
-const QuizPage: React.FC = () => {
-  const {
-    quizData,
-    currentBlock,
-    isGameEnded,
-    handleBlockSelect,
-    handleCategorySelect,
-    handleNewGame,
-    handleMainMenu,
-  } = useQuizGameLogic();
+interface ErrorBoundaryState {
+  hasError: boolean;
+  error: Error | null;
+}
 
-  const {
-    isSettingsVisible,
-    isMenuVisible,
-    showEndMessage,
-    confettiRunning,
-    modalHandlers,
-  } = useQuizModals();
+class QuizErrorBoundary extends React.Component<{ children: React.ReactNode }, ErrorBoundaryState> {
+  state = { hasError: false, error: null };
 
-  if (!quizData) {
-    return <div className={styles.noData}>No data available.</div>;
+  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+    return { hasError: true, error };
   }
 
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    console.error('Quiz error:', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className={styles.errorContainer}>
+          <h1>Что-то пошло не так</h1>
+          <p>{this.state.error?.message}</p>
+          <button 
+            className={styles.reloadButton}
+            onClick={() => window.location.reload()}
+          >
+            Перезагрузить страницу
+          </button>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
+
+const QuizPage: React.FC = () => {
+  const { quizStates, currentQuizId, data } = useQuizContext();
+  const {
+    gameState,
+    handleBlockSelect,
+    handleModalClose,
+    handleSelectCategory,
+    handleNewGame,
+    handleMainMenu
+  } = useQuizGameLogic();
+
+  const currentQuizState = React.useMemo(() => 
+    currentQuizId ? quizStates[currentQuizId] : null,
+    [currentQuizId, quizStates]
+  );
+
+  if (!currentQuizState) {
+    throw new Error('Quiz state not found');
+  }
+
+  const handleBlockSelectWrapper = React.useCallback((
+    block: QuizBlock,
+    category: Category
+  ) => {
+    try {
+      handleBlockSelect(block, category);
+    } catch (error) {
+      console.error('Error selecting block:', error);
+      throw error;
+    }
+  }, [handleBlockSelect]);
+
   return (
-    <div className={styles.quiz_page}>
-      <ConfettiAnimation isRunning={confettiRunning} />
-      <img src={PCImage} alt="PC horizontal line" className={styles.image} />
+    <QuizErrorBoundary>
+      <div className={styles.quiz_page}>
+        <img 
+          src={PCImage} 
+          alt="PC horizontal line" 
+          className={styles.image}
+          onError={(e) => {
+            e.currentTarget.style.display = 'none';
+            console.error('Failed to load logo image');
+          }} 
+        />
+        
+        {data ? (
+          <ContentContainer
+            data={data}
+            onBlockSelect={handleBlockSelectWrapper}
+            usedBlocks={currentQuizState.usedBlocks || {}}
+          />
+        ) : (
+          <div className={styles.noData}>
+            Данные викторины недоступны
+          </div>
+        )}
 
-      <ContentContainer
-        data={quizData}
-        onBlockSelect={handleBlockSelect}
-        usedBlocks={currentBlock?.usedBlocks || {}}
-      />
-
-      <QuizModals
-        isSettingsVisible={isSettingsVisible}
-        isMenuVisible={isMenuVisible}
-        showEndMessage={showEndMessage}
-        confettiRunning={confettiRunning}
-        modalHandlers={modalHandlers}
-        onNewGame={handleNewGame}
-        onMainMenu={handleMainMenu}
-      />
-    </div>
+        <ModalManager
+          selectedBlock={gameState.selectedBlock}
+          selectedCategory={gameState.selectedCategory}
+          isBlockUsed={gameState.isBlockUsed}
+          onModalClose={handleModalClose}
+          onBlockRetry={() => gameState.setIsBlockUsed(false)}
+          onSelectCategory={handleSelectCategory}
+          onNewGame={handleNewGame}
+          onMainMenu={handleMainMenu}
+        />
+      </div>
+    </QuizErrorBoundary>
   );
 };
 
-export default QuizPage;
+export default React.memo(QuizPage);
