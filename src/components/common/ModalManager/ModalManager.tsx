@@ -32,6 +32,11 @@ export const ModalManager: React.FC<ModalManagerProps> = ({
   const { state, closeSettings, closeMenu } = useModal();
   const { currentQuizId, selectedMode, setQuizStates } = useQuizContext();
 
+  if (!currentQuizId && state.endMessage) {
+    console.error('Quiz ID missing for end message');
+    return null;
+  }
+
   return (
     <>
       <ConfettiAnimation isRunning={state.confetti} />
@@ -39,9 +44,9 @@ export const ModalManager: React.FC<ModalManagerProps> = ({
       {selectedBlock && (
         <Modal
           block={selectedBlock}
-          categoryName={selectedCategory?.name || 'Без категории'}
+          categoryName={selectedCategory?.name ?? 'Без категории'}
           onClose={onModalClose}
-          selectedMode={selectedMode || 1}
+          selectedMode={selectedMode ?? 1}
           onSelectCategory={onSelectCategory}
           isBlockUsed={isBlockUsed}
           onTryAgain={onBlockRetry}
@@ -51,7 +56,7 @@ export const ModalManager: React.FC<ModalManagerProps> = ({
 
       {state.menu && (
         <MenuModal
-          showSettings={() => closeMenu()}
+          showSettings={closeMenu}
           showMainMenu={onMainMenu}
           onNewGame={onNewGame}
           isVisible={state.menu}
@@ -59,9 +64,7 @@ export const ModalManager: React.FC<ModalManagerProps> = ({
         />
       )}
 
-      {state.settings && (
-        <Settings onClose={closeSettings} />
-      )}
+      {state.settings && <Settings onClose={closeSettings} />}
 
       {state.endMessage && currentQuizId && (
         <EndMessage

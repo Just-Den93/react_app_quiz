@@ -8,6 +8,13 @@ import styles from './QuizPage.module.css';
 import PCImage from '../../../../assets/images/PC_horizontal_1line_black.svg';
 import { Category, QuizBlock } from '../../../../types/quiz.types';
 
+interface GameState {
+  selectedBlock: QuizBlock | null;
+  selectedCategory: Category | null;
+  isBlockUsed: boolean;
+  setIsBlockUsed: (value: boolean) => void;
+}
+
 const QuizPage: React.FC = () => {
   const { quizStates, currentQuizId, data } = useQuizContext();
   const {
@@ -19,29 +26,38 @@ const QuizPage: React.FC = () => {
     handleMainMenu
   } = useQuizGameLogic();
 
-  const currentQuizState = React.useMemo(() => 
-    currentQuizId ? quizStates[currentQuizId] : null,
-    [currentQuizId, quizStates]
-  );
-
-  if (!currentQuizState) {
-    throw new Error('Quiz state not found');
-  }
+  const currentQuizState = React.useMemo(() => {
+    if (!currentQuizId) {
+      throw new Error('Quiz ID is not defined');
+    }
+    const state = quizStates[currentQuizId];
+    if (!state) {
+      throw new Error('Quiz state not found');
+    }
+    return state;
+  }, [currentQuizId, quizStates]);
 
   const handleBlockSelectWrapper = React.useCallback((
     block: QuizBlock,
     category: Category
   ) => {
     try {
+      if (!block.id || !category.id) {
+        throw new Error('Invalid block or category data');
+      }
       handleBlockSelect(block, category);
     } catch (error) {
       console.error('Error selecting block:', error);
-      throw error;
+      throw new Error(`Failed to select block: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }, [handleBlockSelect]);
 
+  const handleBlockRetry = React.useCallback(() => {
+    (gameState as GameState).setIsBlockUsed(false);
+  }, [gameState]);
+
   return (
-    <ErrorBoundary>
+    <ErrorBoundary componentName="QuizPage">
       <div className={styles.quiz_page}>
         <img 
           src={PCImage} 
@@ -60,7 +76,7 @@ const QuizPage: React.FC = () => {
             usedBlocks={currentQuizState.usedBlocks || {}}
           />
         ) : (
-          <div className={styles.noData}>
+          <div className={styles.noData} role="alert">
             Данные викторины недоступны
           </div>
         )}
@@ -70,7 +86,7 @@ const QuizPage: React.FC = () => {
           selectedCategory={gameState.selectedCategory}
           isBlockUsed={gameState.isBlockUsed}
           onModalClose={handleModalClose}
-          onBlockRetry={() => gameState.setIsBlockUsed(false)}
+          onBlockRetry={handleBlockRetry}
           onSelectCategory={handleSelectCategory}
           onNewGame={handleNewGame}
           onMainMenu={handleMainMenu}

@@ -1,93 +1,52 @@
 import { useState, useCallback, useMemo } from 'react';
-import { useQuizContext } from '../context/QuizContext';
-import { useModal } from '../context/ModalContext';
-import { QuizBlock, Category } from '../types/quiz.types';
-import { QuizService } from '../services/QuizService';
+import { useQuizContext } from '../../../../../context/QuizContext';
+import { useModal } from '../../../../../context/ModalContext';
+import { QuizBlock, Category } from '../../../../../types/quiz.types';
 
-export interface GameState {
+interface GameState {
   selectedBlock: QuizBlock | null;
   selectedCategory: Category | null;
   isBlockUsed: boolean;
+  setIsBlockUsed: (value: boolean) => void;
 }
 
 export function useQuizGameLogic() {
-  const {
-    quizStates,
-    currentQuizId,
-    data,
-    markBlockAsUsed,
-    setQuizStates,
-    setShowQuizPage
-  } = useQuizContext();
-
+  const { quizStates, currentQuizId, data, markBlockAsUsed, setShowQuizPage } = useQuizContext();
   const { showEndMessage, startConfetti, stopConfetti } = useModal();
-  const [gameState, setGameState] = useState<GameState>({
-    selectedBlock: null,
-    selectedCategory: null,
-    isBlockUsed: false
-  });
 
-  const quizService = useMemo(() => new QuizService(), []);
-  
-  const currentQuizState = useMemo(() => 
-    currentQuizId ? quizStates[currentQuizId] || {} : {},
-    [quizStates, currentQuizId]
-  );
+  const [selectedBlock, setSelectedBlock] = useState<QuizBlock | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
+  const [isBlockUsed, setIsBlockUsed] = useState(false);
 
-  const totalBlocks = useMemo(() => {
-    if (!data) return 0;
-    return data.reduce((total, category) => total + category.blocks.length, 0);
-  }, [data]);
-
-  const usedBlocksCount = useMemo(() => {
-    if (!currentQuizState.usedBlocks) return 0;
-    return Object.values(currentQuizState.usedBlocks)
-      .reduce((total, blocks) => total + blocks.length, 0);
-  }, [currentQuizState.usedBlocks]);
+  const gameState: GameState = {
+    selectedBlock,
+    selectedCategory,
+    isBlockUsed,
+    setIsBlockUsed
+  };
 
   const handleBlockSelect = useCallback((block: QuizBlock, category: Category) => {
-    const isUsed = currentQuizId ? 
-      quizService.isBlockUsed(currentQuizId, category.id, block.id) : 
-      false;
-
-    setGameState({
-      selectedBlock: block,
-      selectedCategory: category,
-      isBlockUsed: isUsed
-    });
-  }, [currentQuizId, quizService]);
+    setSelectedBlock(block);
+    setSelectedCategory(category);
+    setIsBlockUsed(false);
+  }, []);
 
   const handleModalClose = useCallback(() => {
-    setGameState({
-      selectedBlock: null,
-      selectedCategory: null,
-      isBlockUsed: false
-    });
+    setSelectedBlock(null);
+    setSelectedCategory(null);
+    setIsBlockUsed(false);
   }, []);
 
   const handleSelectCategory = useCallback((categoryId: string, blockId: number) => {
     if (!currentQuizId) return;
-
     markBlockAsUsed(currentQuizId, categoryId, blockId);
     handleModalClose();
-
-    if (usedBlocksCount + 1 === totalBlocks) {
-      startConfetti();
-      showEndMessage();
-    }
-  }, [currentQuizId, markBlockAsUsed, handleModalClose, usedBlocksCount, totalBlocks, startConfetti, showEndMessage]);
+  }, [currentQuizId, markBlockAsUsed, handleModalClose]);
 
   const handleNewGame = useCallback(() => {
-    if (!currentQuizId) return;
-
-    quizService.startNewGame(currentQuizId);
+    handleModalClose();
     stopConfetti();
-    setGameState({
-      selectedBlock: null,
-      selectedCategory: null,
-      isBlockUsed: false
-    });
-  }, [currentQuizId, quizService, stopConfetti]);
+  }, [handleModalClose, stopConfetti]);
 
   const handleMainMenu = useCallback(() => {
     setShowQuizPage(false);
@@ -95,8 +54,6 @@ export function useQuizGameLogic() {
 
   return {
     gameState,
-    totalBlocks,
-    usedBlocksCount,
     handleBlockSelect,
     handleModalClose,
     handleSelectCategory,
