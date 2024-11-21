@@ -1,48 +1,106 @@
-import { useQuizContext } from '../../../../../context/QuizContext';
-import { useQuizService } from '../../../../../services/quiz/useQuizService';
-import type { QuizBlock, Category } from '../../../../../types/quiz.types';
+import { useState, useCallback, useMemo } from 'react';
+import { useQuizContext } from '../context/QuizContext';
+import { useModal } from '../context/ModalContext';
+import { QuizBlock, Category } from '../types/quiz.types';
+import { QuizService } from '../services/QuizService';
 
-export const useQuizGameLogic = () => {
-  const { quizStates, currentQuizId, setShowQuizPage } = useQuizContext();
-  const quizService = useQuizService();
-  const [currentBlock, setCurrentBlock] = useState<QuizBlock | null>(null);
+export interface GameState {
+  selectedBlock: QuizBlock | null;
+  selectedCategory: Category | null;
+  isBlockUsed: boolean;
+}
 
-  // Обработка выбора блока
+export function useQuizGameLogic() {
+  const {
+    quizStates,
+    currentQuizId,
+    data,
+    markBlockAsUsed,
+    setQuizStates,
+    setShowQuizPage
+  } = useQuizContext();
+
+  const { showEndMessage, startConfetti, stopConfetti } = useModal();
+  const [gameState, setGameState] = useState<GameState>({
+    selectedBlock: null,
+    selectedCategory: null,
+    isBlockUsed: false
+  });
+
+  const quizService = useMemo(() => new QuizService(), []);
+  
+  const currentQuizState = useMemo(() => 
+    currentQuizId ? quizStates[currentQuizId] || {} : {},
+    [quizStates, currentQuizId]
+  );
+
+  const totalBlocks = useMemo(() => {
+    if (!data) return 0;
+    return data.reduce((total, category) => total + category.blocks.length, 0);
+  }, [data]);
+
+  const usedBlocksCount = useMemo(() => {
+    if (!currentQuizState.usedBlocks) return 0;
+    return Object.values(currentQuizState.usedBlocks)
+      .reduce((total, blocks) => total + blocks.length, 0);
+  }, [currentQuizState.usedBlocks]);
+
   const handleBlockSelect = useCallback((block: QuizBlock, category: Category) => {
-    const isUsed = quizService.isBlockUsed(currentQuizId, category.id, block.id);
-    if (isUsed) {
-      return;
-    }
-    setCurrentBlock(block);
+    const isUsed = currentQuizId ? 
+      quizService.isBlockUsed(currentQuizId, category.id, block.id) : 
+      false;
+
+    setGameState({
+      selectedBlock: block,
+      selectedCategory: category,
+      isBlockUsed: isUsed
+    });
   }, [currentQuizId, quizService]);
 
-  // Обработка выбора категории
-  const handleCategorySelect = useCallback((categoryId: string, blockId: number) => {
-    quizService.markBlockAsUsed(currentQuizId, categoryId, blockId);
-    setCurrentBlock(null);
-    
-    if (quizService.isGameCompleted(currentQuizId)) {
-      quizService.completeGame(currentQuizId);
-    }
-  }, [currentQuizId, quizService]);
+  const handleModalClose = useCallback(() => {
+    setGameState({
+      selectedBlock: null,
+      selectedCategory: null,
+      isBlockUsed: false
+    });
+  }, []);
 
-  // Обработка новой игры
+  const handleSelectCategory = useCallback((categoryId: string, blockId: number) => {
+    if (!currentQuizId) return;
+
+    markBlockAsUsed(currentQuizId, categoryId, blockId);
+    handleModalClose();
+
+    if (usedBlocksCount + 1 === totalBlocks) {
+      startConfetti();
+      showEndMessage();
+    }
+  }, [currentQuizId, markBlockAsUsed, handleModalClose, usedBlocksCount, totalBlocks, startConfetti, showEndMessage]);
+
   const handleNewGame = useCallback(() => {
-    quizService.startNewGame(currentQuizId);
-  }, [currentQuizId, quizService]);
+    if (!currentQuizId) return;
 
-  // Возврат в главное меню
+    quizService.startNewGame(currentQuizId);
+    stopConfetti();
+    setGameState({
+      selectedBlock: null,
+      selectedCategory: null,
+      isBlockUsed: false
+    });
+  }, [currentQuizId, quizService, stopConfetti]);
+
   const handleMainMenu = useCallback(() => {
     setShowQuizPage(false);
   }, [setShowQuizPage]);
 
   return {
-    quizData: quizService.getQuizData(currentQuizId),
-    currentBlock,
-    isGameEnded: quizService.isGameCompleted(currentQuizId),
+    gameState,
+    totalBlocks,
+    usedBlocksCount,
     handleBlockSelect,
-    handleCategorySelect,
+    handleModalClose,
+    handleSelectCategory,
     handleNewGame,
     handleMainMenu
   };
-};
+}
