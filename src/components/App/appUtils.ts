@@ -1,3 +1,4 @@
+// appUtils.ts
 export const startQuizHandler = (
 	mode: number,
 	uuid: string,
@@ -5,13 +6,12 @@ export const startQuizHandler = (
 	setCurrentQuizId: React.Dispatch<React.SetStateAction<string | null>>,
 	setShowQuizPage: React.Dispatch<React.SetStateAction<boolean>>
  ): void => {
-	// Сначала устанавливаем все необходимые значения
-	setSelectedMode(mode); 
+	setSelectedMode(mode);
 	setCurrentQuizId(uuid);
 	setShowQuizPage(true);
  
-	// Затем сохраняем их в localStorage
 	localStorage.setItem('selectedMode', mode.toString());
 	localStorage.setItem('currentQuizId', uuid);
 	localStorage.setItem('showQuizPage', 'true');
+	localStorage.removeItem('menuVisible'); // Очищаем состояние меню
  };

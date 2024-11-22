@@ -10,24 +10,24 @@ interface ModalState {
 }
 
 interface ModalAPI {
+  modalState: ModalState;
   showModal: (modalType: 'settings' | 'menu' | 'endMessage') => void;
   hideModal: (modalType: 'settings' | 'menu' | 'endMessage') => void;
-  modalState: ModalState;
   closeSettings: () => void;
   closeMenu: () => void;
 }
 
 export function useModal(): ModalAPI {
-  const { 
-    state, 
-    openSettings, 
-    closeSettings, 
-    openMenu, 
-    closeMenu, 
-    showEndMessage, 
-    hideEndMessage, 
-    startConfetti, 
-    stopConfetti 
+  const {
+    state,
+    openSettings,
+    closeSettings,
+    openMenu,
+    closeMenu,
+    showEndMessage,
+    hideEndMessage,
+    startConfetti,
+    stopConfetti
   } = useModalContext();
 
   const showModal = useCallback((modalType: 'settings' | 'menu' | 'endMessage') => {
