@@ -1,6 +1,7 @@
-import { useState, useCallback, useMemo } from 'react';
+// src/components/features/Quiz/QuizPage/hooks/useQuizGameLogic.ts
+import { useState, useCallback } from 'react';
 import { useQuizContext } from '../../../../../context/QuizContext';
-import { useModal } from '../../../../../context/ModalContext';
+import { useModal } from '../../../../common/ModalManager/useModal';
 import { QuizBlock, Category } from '../../../../../types/quiz.types';
 
 interface GameState {
@@ -11,8 +12,8 @@ interface GameState {
 }
 
 export function useQuizGameLogic() {
-  const { quizStates, currentQuizId, data, markBlockAsUsed, setShowQuizPage } = useQuizContext();
-  const { showEndMessage, startConfetti, stopConfetti } = useModal();
+  const { quizStates, currentQuizId, markBlockAsUsed, setShowQuizPage } = useQuizContext();
+  const { showModal, hideModal } = useModal();
 
   const [selectedBlock, setSelectedBlock] = useState<QuizBlock | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
@@ -28,8 +29,8 @@ export function useQuizGameLogic() {
   const handleBlockSelect = useCallback((block: QuizBlock, category: Category) => {
     setSelectedBlock(block);
     setSelectedCategory(category);
-    setIsBlockUsed(false);
-  }, []);
+    setIsBlockUsed(!!quizStates[currentQuizId!]?.usedBlocks?.[category.id]?.includes(block.id));
+  }, [currentQuizId, quizStates]);
 
   const handleModalClose = useCallback(() => {
     setSelectedBlock(null);
@@ -45,8 +46,8 @@ export function useQuizGameLogic() {
 
   const handleNewGame = useCallback(() => {
     handleModalClose();
-    stopConfetti();
-  }, [handleModalClose, stopConfetti]);
+    hideModal('endMessage');
+  }, [handleModalClose, hideModal]);
 
   const handleMainMenu = useCallback(() => {
     setShowQuizPage(false);

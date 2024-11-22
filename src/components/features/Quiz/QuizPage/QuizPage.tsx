@@ -1,7 +1,9 @@
+// src/components/features/Quiz/QuizPage/QuizPage.tsx
 import React from 'react';
 import { useQuizContext } from '../../../../context/QuizContext';
 import { useQuizGameLogic } from './hooks/useQuizGameLogic';
 import { useQuizIdentifier } from './hooks/useQuizIdentifier';
+import { useKeyboardEvents } from './hooks/useKeyboardEvents';
 import { ModalManager } from '../../../common/ModalManager/ModalManager';
 import ContentContainer from '../../../layout/ContentContainer/ContentContainer';
 import styles from './QuizPage.module.css';
@@ -11,8 +13,8 @@ import { Category, QuizBlock } from '../../../../types/quiz.types';
 const QuizPage: React.FC = () => {
   const { quizStates, currentQuizId, data } = useQuizContext();
   
-  // Используем новый хук
   useQuizIdentifier();
+  useKeyboardEvents(); // Добавляем обработчик клавиатуры
 
   const {
     gameState,
@@ -23,18 +25,16 @@ const QuizPage: React.FC = () => {
     handleMainMenu
   } = useQuizGameLogic();
 
-  // Проверяем наличие currentQuizId и возвращаем сообщение об ошибке если его нет
   if (!currentQuizId) {
     return (
       <div className={styles.quiz_page}>
         <div className={styles.errorMessage}>
-          Ошибка: ID викторины не найден. Пожалуйста, вернитесь на главную страницу и выберите викторину.
+          Ошибка: ID викторины не найден
         </div>
       </div>
     );
   }
 
-  // Получаем состояние текущей викторины
   const currentQuizState = quizStates[currentQuizId] || {
     usedBlocks: {},
     data: null,
