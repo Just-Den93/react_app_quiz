@@ -1,3 +1,4 @@
+// ModalContext.tsx
 import React, { createContext, useContext, useReducer, ReactNode } from 'react';
 
 interface ModalState {
@@ -7,7 +8,7 @@ interface ModalState {
   confetti: boolean;
 }
 
-type ModalAction = 
+type ModalAction =
   | { type: 'OPEN_SETTINGS' }
   | { type: 'CLOSE_SETTINGS' }
   | { type: 'OPEN_MENU' }
@@ -59,7 +60,15 @@ function modalReducer(state: ModalState, action: ModalAction): ModalState {
   }
 }
 
-const ModalContext = createContext<ModalContextType | undefined>(undefined);
+export const ModalContext = createContext<ModalContextType | undefined>(undefined);
+
+export function useModalContext() {
+  const context = useContext(ModalContext);
+  if (context === undefined) {
+    throw new Error('useModalContext must be used within a ModalProvider');
+  }
+  return context;
+}
 
 export function ModalProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(modalReducer, initialState);
@@ -81,12 +90,4 @@ export function ModalProvider({ children }: { children: ReactNode }) {
       {children}
     </ModalContext.Provider>
   );
-}
-
-export function useModal() {
-  const context = useContext(ModalContext);
-  if (context === undefined) {
-    throw new Error('useModal must be used within a ModalProvider');
-  }
-  return context;
 }

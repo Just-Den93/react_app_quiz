@@ -1,7 +1,7 @@
 import { useState, useCallback, useMemo } from 'react';
-import { useQuizContext } from '../../../../../context/QuizContext';
-import { useModal } from '../../../../../context/ModalContext';
-import { QuizBlock, Category } from '../../../../../types/quiz.types';
+import { useQuizContext } from '../../../../context/QuizContext';
+import { useModal } from '../../../../context/ModalContext';
+import { QuizBlock, Category } from '../../../../types/quiz.types';
 
 interface GameState {
   selectedBlock: QuizBlock | null;

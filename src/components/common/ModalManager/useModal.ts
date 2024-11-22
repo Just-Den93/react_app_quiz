@@ -1,42 +1,60 @@
+// useModal.ts
 import { useCallback } from 'react';
-import { useModal as useModalContext } from '../../context/ModalContext';
+import { useModalContext } from '../../../context/ModalContext';
 
-export function useModal() {
-  const context = useModalContext();
+interface ModalState {
+  settings: boolean;
+  menu: boolean;
+  endMessage: boolean;
+  confetti: boolean;
+}
+
+interface ModalAPI {
+  showModal: (modalType: 'settings' | 'menu' | 'endMessage') => void;
+  hideModal: (modalType: 'settings' | 'menu' | 'endMessage') => void;
+  modalState: ModalState;
+  closeSettings: () => void;
+  closeMenu: () => void;
+}
+
+export function useModal(): ModalAPI {
+  const { state, openSettings, closeSettings, openMenu, closeMenu, showEndMessage, hideEndMessage, startConfetti, stopConfetti } = useModalContext();
 
   const showModal = useCallback((modalType: 'settings' | 'menu' | 'endMessage') => {
     switch (modalType) {
       case 'settings':
-        context.openSettings();
+        openSettings();
         break;
       case 'menu':
-        context.openMenu();
+        openMenu();
         break;
       case 'endMessage':
-        context.showEndMessage();
-        context.startConfetti();
+        showEndMessage();
+        startConfetti();
         break;
     }
-  }, [context]);
+  }, [openSettings, openMenu, showEndMessage, startConfetti]);
 
   const hideModal = useCallback((modalType: 'settings' | 'menu' | 'endMessage') => {
     switch (modalType) {
       case 'settings':
-        context.closeSettings();
+        closeSettings();
         break;
       case 'menu':
-        context.closeMenu();
+        closeMenu();
         break;
       case 'endMessage':
-        context.hideEndMessage();
-        context.stopConfetti();
+        hideEndMessage();
+        stopConfetti();
         break;
     }
-  }, [context]);
+  }, [closeSettings, closeMenu, hideEndMessage, stopConfetti]);
 
   return {
     showModal,
     hideModal,
-    modalState: context.state
+    modalState: state,
+    closeSettings,
+    closeMenu
   };
 }

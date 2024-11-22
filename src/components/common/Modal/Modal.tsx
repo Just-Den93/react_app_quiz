@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import QAMode from '../../../features/Game/GameModes/QAMode/QAMode';
-import SelectionMode from '../../../features/Game/GameModes/SelectionMode/SelectionMode.tsx';
-import WarningMessage from '../../../features/Game/Messages/WarningMessage/WarningMessage';
+import QAMode from '../../features/Game/GameModes/QAMode/QAMode';
+import SelectionMode from '../../features/Game/GameModes/SelectionMode/SelectionMode';
+import WarningMessage from '../../features/Game/Messages/WarningMessage/WarningMessage';
 import styles from './Modal.module.css';
 
 interface Block {
