@@ -12,8 +12,6 @@
     ],
     "types": [
       "node",
-      "webpack-env",
-      "canvas-confetti"
     ],
     "allowJs": true,
     "skipLibCheck": true,
