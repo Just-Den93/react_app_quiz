@@ -1,6 +1,6 @@
-// useModal.ts
+// src/components/common/ModalManager/useModal.ts
 import { useCallback } from 'react';
-import { useModalContext } from '../../../context/ModalContext';
+import { useModal as useModalContext } from '../../../context/ModalContext';
 
 interface ModalState {
   settings: boolean;
@@ -18,7 +18,17 @@ interface ModalAPI {
 }
 
 export function useModal(): ModalAPI {
-  const { state, openSettings, closeSettings, openMenu, closeMenu, showEndMessage, hideEndMessage, startConfetti, stopConfetti } = useModalContext();
+  const { 
+    state, 
+    openSettings, 
+    closeSettings, 
+    openMenu, 
+    closeMenu, 
+    showEndMessage, 
+    hideEndMessage, 
+    startConfetti, 
+    stopConfetti 
+  } = useModalContext();
 
   const showModal = useCallback((modalType: 'settings' | 'menu' | 'endMessage') => {
     switch (modalType) {

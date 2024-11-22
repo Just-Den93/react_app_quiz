@@ -1,6 +1,7 @@
 import React from 'react';
 import { useQuizContext } from '../../../../context/QuizContext';
-import { useQuizGameLogic } from './useQuizGameLogic';
+import { useQuizGameLogic } from './hooks/useQuizGameLogic';
+import { useQuizIdentifier } from './hooks/useQuizIdentifier';
 import { ModalManager } from '../../../common/ModalManager/ModalManager';
 import ContentContainer from '../../../layout/ContentContainer/ContentContainer';
 import styles from './QuizPage.module.css';
@@ -9,6 +10,10 @@ import { Category, QuizBlock } from '../../../../types/quiz.types';
 
 const QuizPage: React.FC = () => {
   const { quizStates, currentQuizId, data } = useQuizContext();
+  
+  // Используем новый хук
+  useQuizIdentifier();
+
   const {
     gameState,
     handleBlockSelect,
@@ -18,23 +23,47 @@ const QuizPage: React.FC = () => {
     handleMainMenu
   } = useQuizGameLogic();
 
-  const currentQuizState = React.useMemo(() => {
-    if (!currentQuizId) throw new Error('Quiz ID is not defined');
-    const state = quizStates[currentQuizId];
-    if (!state) throw new Error('Quiz state not found');
-    return state;
-  }, [currentQuizId, quizStates]);
+  // Проверяем наличие currentQuizId и возвращаем сообщение об ошибке если его нет
+  if (!currentQuizId) {
+    return (
+      <div className={styles.quiz_page}>
+        <div className={styles.errorMessage}>
+          Ошибка: ID викторины не найден. Пожалуйста, вернитесь на главную страницу и выберите викторину.
+        </div>
+      </div>
+    );
+  }
+
+  // Получаем состояние текущей викторины
+  const currentQuizState = quizStates[currentQuizId] || {
+    usedBlocks: {},
+    data: null,
+    completedGames: 0
+  };
 
   const handleBlockSelectWrapper = (block: QuizBlock, category: Category) => {
     if (!block.id || !category.id) {
-      throw new Error('Invalid block or category data');
+      console.error('Invalid block or category data');
+      return;
     }
     handleBlockSelect(block, category);
   };
 
   const handleBlockRetry = () => {
-    (gameState as { setIsBlockUsed: (value: boolean) => void }).setIsBlockUsed(false);
+    if (gameState.setIsBlockUsed) {
+      gameState.setIsBlockUsed(false);
+    }
   };
+
+  if (!data) {
+    return (
+      <div className={styles.quiz_page}>
+        <div className={styles.errorMessage}>
+          Данные викторины недоступны
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.quiz_page}>
@@ -48,17 +77,11 @@ const QuizPage: React.FC = () => {
         }}
       />
      
-      {data ? (
-        <ContentContainer
-          data={data}
-          onBlockSelect={handleBlockSelectWrapper}
-          usedBlocks={currentQuizState.usedBlocks || {}}
-        />
-      ) : (
-        <div className={styles.noData} role="alert">
-          Данные викторины недоступны
-        </div>
-      )}
+      <ContentContainer
+        data={data}
+        onBlockSelect={handleBlockSelectWrapper}
+        usedBlocks={currentQuizState.usedBlocks}
+      />
 
       <ModalManager
         selectedBlock={gameState.selectedBlock}

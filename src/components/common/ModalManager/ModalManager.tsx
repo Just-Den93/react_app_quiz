@@ -1,3 +1,4 @@
+// src/components/common/ModalManager/ModalManager.tsx
 import React from 'react';
 import { useModal } from './useModal';
 import { useQuizContext } from '../../../context/QuizContext';
@@ -77,3 +78,5 @@ export const ModalManager: React.FC<ModalManagerProps> = ({
     </>
   );
 };
+
+export default ModalManager;
