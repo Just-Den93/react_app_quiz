@@ -1,9 +1,7 @@
 // src/components/common/MenuModal/MenuModal.tsx
 import React from 'react';
-import styles from './MenuModal.module.css';
 import { Button, BUTTON_VARIANTS } from '../Button/Button';
-import { useQuizContext } from '../../../context/QuizContext';
-import { resetQuizStateAndCloseModal } from './menuModalUtils';
+import styles from './MenuModal.module.css';
 
 interface MenuModalProps {
   showSettings: () => void;
@@ -16,11 +14,10 @@ interface MenuModalProps {
 const MenuModal: React.FC<MenuModalProps> = ({
   showSettings,
   showMainMenu,
+  onNewGame,
   isVisible,
-  closeMenuModal
+  closeMenuModal,
 }) => {
-  const { currentQuizId, setQuizStates } = useQuizContext();
-
   return (
     <div
       id="menu-modal"
@@ -30,20 +27,28 @@ const MenuModal: React.FC<MenuModalProps> = ({
       <div className={styles.menuModalContent}>
         <Button
           variant={BUTTON_VARIANTS.NEW_GAME}
-          onClick={() => resetQuizStateAndCloseModal(currentQuizId, setQuizStates, closeMenuModal)}
-        />
+          onClick={onNewGame}
+        >
+          Нова гра
+        </Button>
         <Button
           variant={BUTTON_VARIANTS.CONTINUE}
           onClick={closeMenuModal}
-        />
+        >
+          Продовжити
+        </Button>
         <Button
           variant={BUTTON_VARIANTS.SETTINGS}
           onClick={showSettings}
-        />
+        >
+          Налаштування
+        </Button>
         <Button
           variant={BUTTON_VARIANTS.MAIN_MENU}
           onClick={showMainMenu}
-        />
+        >
+          Головне меню
+        </Button>
       </div>
     </div>
   );

@@ -33,7 +33,7 @@ interface SelectionModeProps {
     question: string;
     text: string;
     options: string[];
-    categoryId: string; // Здесь categoryId обязателен
+    categoryId: string;
     'correct answer': string;
   };
   categoryName: string;
@@ -46,6 +46,7 @@ interface SelectionModeProps {
   handleSelectCategory: (categoryId: string, blockId: number) => void;
   handleForceStop: () => void;
 }
+
 
 interface HighlightedOptions {
   [key: number]: string;

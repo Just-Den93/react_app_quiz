@@ -1,35 +1,50 @@
-// src/context/QuizContext.tsx
-import React, { createContext, useContext, useState, ReactNode, useEffect, useCallback, useMemo } from 'react';
-import type { QuizState, QuizContextType, Category } from '../types/quiz.types';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+  useEffect,
+  useCallback,
+  useMemo,
+  useReducer,
+} from 'react';
+import type {
+  QuizState,
+  QuizContextValue,
+  Category,
+  GameState,
+  GameActions,
+} from '../types/quiz.types';
 import { loadJsonDataByMode } from '../utils/loadJsonData';
 import { safeStorage, safeJsonParse, handleError } from '../utils/errorHandling';
 
-// Начальное состояние для QuizState
-const initialQuizState: QuizState = {
-  usedBlocks: {},
-  data: null,
-  completedGames: 0
+const initialGameState: GameState = {
+  timerStarted: false,
+  timerEnded: false,
+  showAnswer: false,
 };
 
-// Начальное состояние для всего хранилища состояний
 const initialQuizStatesStorage: { [key: string]: QuizState } = {};
 
-// Создаем контекст с начальным значением
-const QuizContext = createContext<QuizContextType>({
-  showQuizPage: false,
-  setShowQuizPage: () => {},
-  selectedMode: null,
-  setSelectedMode: () => {},
-  currentQuizId: null,
-  setCurrentQuizId: () => {},
-  quizStates: initialQuizStatesStorage,
-  setQuizStates: () => {},
-  updateQuizState: () => {},
-  markBlockAsUsed: () => {},
-  data: null,
-});
+const gameReducer = (state: GameState, action: any): GameState => {
+  switch (action.type) {
+    case 'START_TIMER':
+      return { ...state, timerStarted: true };
+    case 'END_TIMER':
+      return { ...state, timerEnded: true };
+    case 'RESET_TIMER':
+      return { ...state, timerStarted: false, timerEnded: false };
+    case 'SHOW_ANSWER':
+      return { ...state, showAnswer: true };
+    case 'HIDE_ANSWER':
+      return { ...state, showAnswer: false };
+    default:
+      return state;
+  }
+};
 
-// Хук для использования контекста
+const QuizContext = createContext<QuizContextValue | undefined>(undefined);
+
 export const useQuizContext = () => {
   const context = useContext(QuizContext);
   if (!context) {
@@ -44,219 +59,150 @@ interface QuizProviderProps {
 
 const QuizProvider: React.FC<QuizProviderProps> = ({ children }) => {
   const [showQuizPage, setShowQuizPage] = useState<boolean>(() => {
-    try {
-      return safeStorage.getItem('showQuizPage') === 'true';
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        handleError(error, 'Ошибка при инициализации showQuizPage');
-      } else {
-        handleError(new Error('Неизвестная ошибка'), 'Ошибка при инициализации showQuizPage');
-      }
-      return false;
-    }
+    const savedValue = safeStorage.getItem('showQuizPage');
+    return savedValue === 'true';
   });
 
   const [selectedMode, setSelectedMode] = useState<number | null>(() => {
-    try {
-      const storedMode = safeStorage.getItem('selectedMode');
-      return storedMode ? Number(storedMode) : null;
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        handleError(error, 'Ошибка при инициализации selectedMode');
-      } else {
-        handleError(new Error('Неизвестная ошибка'), 'Ошибка при инициализации selectedMode');
-      }
-      return null;
-    }
+    const savedMode = safeStorage.getItem('selectedMode');
+    return savedMode ? parseInt(savedMode, 10) : null;
   });
 
   const [currentQuizId, setCurrentQuizId] = useState<string | null>(() => {
-    try {
-      return safeStorage.getItem('currentQuizId') || null;
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        handleError(error, 'Ошибка при инициализации currentQuizId');
-      } else {
-        handleError(new Error('Неизвестная ошибка'), 'Ошибка при инициализации currentQuizId');
-      }
-      return null;
-    }
+    return safeStorage.getItem('currentQuizId');
   });
 
-  const [quizStates, setQuizStates] = useState<{ [key: string]: QuizState }>(() => {
-    try {
+  const [quizStates, setQuizStates] = useState<{ [key: string]: QuizState }>(
+    () => {
       const savedStates = safeStorage.getItem('quizStates');
-      if (!savedStates) return initialQuizStatesStorage;
-
-      const parsedStates = safeJsonParse(savedStates, null);
-      return parsedStates || initialQuizStatesStorage;
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        handleError(error, 'Ошибка при инициализации quizStates');
-      } else {
-        handleError(new Error('Неизвестная ошибка'), 'Ошибка при инициализации quizStates');
-      }
-      return initialQuizStatesStorage;
+      return savedStates
+        ? safeJsonParse(savedStates, initialQuizStatesStorage) ?? initialQuizStatesStorage
+        : initialQuizStatesStorage;
     }
-  });
+  );
 
-  const [data, setData] = useState<Category[] | null>(() => {
-    try {
-      const savedData = safeStorage.getItem('data');
-      return savedData ? safeJsonParse(savedData, null) : null;
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        handleError(error, 'Ошибка при инициализации data');
-      } else {
-        handleError(new Error('Неизвестная ошибка'), 'Ошибка при инициализации data');
-      }
-      return null;
-    }
-  });
 
-  // Эффекты для сохранения в localStorage...
+  const [data, setData] = useState<Category[] | null>(null);
+
+  const [gameState, dispatchGame] = useReducer(gameReducer, initialGameState);
+
+  const gameActions: GameActions = useMemo(
+    () => ({
+      startTimer: () => dispatchGame({ type: 'START_TIMER' }),
+      endTimer: () => dispatchGame({ type: 'END_TIMER' }),
+      resetTimer: () => dispatchGame({ type: 'RESET_TIMER' }),
+      showAnswer: () => dispatchGame({ type: 'SHOW_ANSWER' }),
+      hideAnswer: () => dispatchGame({ type: 'HIDE_ANSWER' }),
+    }),
+    []
+  );
+
+  const updateQuizState = useCallback(
+    (uuid: string, newState: Partial<QuizState>) => {
+      setQuizStates((prev) => {
+        const updatedStates = {
+          ...prev,
+          [uuid]: { ...prev[uuid], ...newState },
+        };
+        safeStorage.setItem('quizStates', JSON.stringify(updatedStates));
+        return updatedStates;
+      });
+    },
+    []
+  );
+
+  const markBlockAsUsed = useCallback(
+    (quizId: string, categoryId: string, blockId: number) => {
+      setQuizStates((prev) => {
+        const currentState = prev[quizId] || { ...initialQuizStatesStorage };
+        const currentBlocks = currentState.usedBlocks[categoryId] || [];
+        return {
+          ...prev,
+          [quizId]: {
+            ...currentState,
+            usedBlocks: {
+              ...currentState.usedBlocks,
+              [categoryId]: [...currentBlocks, blockId],
+            },
+          },
+        };
+      });
+    },
+    []
+  );
+
   useEffect(() => {
-    try {
-      safeStorage.setItem('showQuizPage', String(showQuizPage));
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        handleError(error, 'Ошибка при сохранении showQuizPage');
-      } else {
-        handleError(new Error('Неизвестная ошибка'), 'Ошибка при сохранении showQuizPage');
-      }
-    }
+    safeStorage.setItem('showQuizPage', showQuizPage.toString());
   }, [showQuizPage]);
 
   useEffect(() => {
     if (selectedMode !== null) {
-      try {
-        safeStorage.setItem('selectedMode', String(selectedMode));
-      } catch (error: unknown) {
-        if (error instanceof Error) {
-          handleError(error, 'Ошибка при сохранении selectedMode');
-        } else {
-          handleError(new Error('Неизвестная ошибка'), 'Ошибка при сохранении selectedMode');
-        }
-      }
+      safeStorage.setItem('selectedMode', selectedMode.toString());
     }
   }, [selectedMode]);
 
   useEffect(() => {
     if (currentQuizId) {
-      try {
-        safeStorage.setItem('currentQuizId', currentQuizId);
-      } catch (error: unknown) {
-        if (error instanceof Error) {
-          handleError(error, 'Ошибка при сохранении currentQuizId');
-        } else {
-          handleError(new Error('Неизвестная ошибка'), 'Ошибка при сохранении currentQuizId');
-        }
-      }
+      safeStorage.setItem('currentQuizId', currentQuizId);
     }
   }, [currentQuizId]);
 
-  // Эффект загрузки данных...
   useEffect(() => {
     const loadQuizData = async () => {
-      if (selectedMode && currentQuizId) {
+      if (selectedMode !== null && currentQuizId) {
         try {
-          const selectedData = loadJsonDataByMode(selectedMode);
-          if (selectedData?.categories) {
-            setData(selectedData.categories);
-            updateQuizState(currentQuizId, { data: selectedData.categories });
-            safeStorage.setItem('data', JSON.stringify(selectedData.categories));
-          }
-        } catch (error: unknown) {
-          if (error instanceof Error) {
-            handleError(error, 'Ошибка при загрузке данных викторины');
+          const quizData = await loadJsonDataByMode(selectedMode);
+          if (quizData && quizData.categories) {
+            setData(quizData.categories);
           } else {
-            handleError(new Error('Неизвестная ошибка'), 'Ошибка при загрузке данных викторины');
+            throw new Error('Некорректные данные викторины');
           }
+        } catch (error) {
+          handleError(error as Error, 'Ошибка при загрузке данных викторины');
           setData(null);
         }
       }
     };
-
     loadQuizData();
   }, [selectedMode, currentQuizId]);
+  
 
-  const updateQuizState = useCallback((uuid: string, newState: Partial<QuizState>) => {
-    if (!uuid) return;
-    try {
-      setQuizStates(prevStates => {
-        const currentState = prevStates[uuid] || { ...initialQuizState };
-        const updatedStates = {
-          ...prevStates,
-          [uuid]: {
-            ...currentState,
-            ...newState,
-          },
-        };
-        safeStorage.setItem('quizStates', JSON.stringify(updatedStates));
-        return updatedStates;
-      });
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        handleError(error, 'Ошибка при обновлении состояния викторины');
-      } else {
-        handleError(new Error('Неизвестная ошибка'), 'Ошибка при обновлении состояния викторины');
-      }
-    }
-  }, []);
+  const contextValue = useMemo(
+    () => ({
+      showQuizPage,
+      setShowQuizPage,
+      selectedMode,
+      setSelectedMode,
+      currentQuizId,
+      setCurrentQuizId,
+      quizStates,
+      setQuizStates,
+      updateQuizState,
+      markBlockAsUsed,
+      data,
+      gameState,
+      gameActions,
+      quizActions: {
+        updateQuizState,
+        markBlockAsUsed,
+      },
+    }),
+    [
+      showQuizPage,
+      selectedMode,
+      currentQuizId,
+      quizStates,
+      data,
+      gameState,
+      gameActions,
+      updateQuizState,
+      markBlockAsUsed,
+    ]
+  );
 
-  const markBlockAsUsed = useCallback((quizId: string, categoryId: string, blockId: number) => {
-    if (!quizId || !categoryId) return;
-    try {
-      setQuizStates(prevStates => {
-        const currentState = prevStates[quizId] || { ...initialQuizState };
-        const currentUsedBlocks = currentState.usedBlocks[categoryId] || [];
-        
-        const updatedStates = {
-          ...prevStates,
-          [quizId]: {
-            ...currentState,
-            usedBlocks: {
-              ...currentState.usedBlocks,
-              [categoryId]: [...currentUsedBlocks, blockId]
-            }
-          }
-        };
-
-        safeStorage.setItem('quizStates', JSON.stringify(updatedStates));
-        return updatedStates;
-      });
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        handleError(error, 'Ошибка при пометке блока как использованного');
-      } else {
-        handleError(new Error('Неизвестная ошибка'), 'Ошибка при пометке блока как использованного');
-      }
-    }
-  }, []);
-
-  const contextValue = useMemo(() => ({
-    showQuizPage,
-    setShowQuizPage,
-    selectedMode,
-    setSelectedMode,
-    currentQuizId,
-    setCurrentQuizId,
-    quizStates,
-    setQuizStates,
-    updateQuizState,
-    markBlockAsUsed,
-    data,
-  }), [
-    showQuizPage,
-    selectedMode,
-    currentQuizId,
-    quizStates,
-    data,
-    updateQuizState,
-    markBlockAsUsed
-  ]);
-
-  return <QuizContext.Provider value={contextValue}>{children}</QuizContext.Provider>;
+  return (
+    <QuizContext.Provider value={contextValue}>{children}</QuizContext.Provider>
+  );
 };
 
 export { QuizProvider, QuizContext };

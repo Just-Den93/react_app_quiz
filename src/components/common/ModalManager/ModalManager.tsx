@@ -1,13 +1,11 @@
 // src/components/common/ModalManager/ModalManager.tsx
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { useModal } from './useModal';
 import { useQuizContext } from '../../../context/QuizContext';
-import MenuModal from '../MenuModal/MenuModal';
 import Modal from '../Modal/Modal';
-import Settings from '../../features/Game/Settings/Settings';
-import EndMessage from '../../features/Game/Messages/EndMessage/EndMessage';
-import ConfettiAnimation from '../../features/Game/Animation/ConfettiAnimation';
-import { Category, QuizBlock } from '../../../types/quiz.types';
+import WarningMessage from '../../features/Game/Messages/WarningMessage/WarningMessage';
+import { gameModeFactory } from './factories/gameModeFactory';
+import { QuizBlock, Category } from '../../../types/quiz.types';
 
 interface ModalManagerProps {
   selectedBlock: QuizBlock | null;
@@ -17,8 +15,9 @@ interface ModalManagerProps {
   onBlockRetry: () => void;
   onSelectCategory: (categoryId: string, blockId: number) => void;
   onNewGame: () => void;
-  onMainMenu: () => void;
+  onMainMenu: () => void; // Добавлено
 }
+
 
 export const ModalManager: React.FC<ModalManagerProps> = ({
   selectedBlock,
@@ -28,54 +27,63 @@ export const ModalManager: React.FC<ModalManagerProps> = ({
   onBlockRetry,
   onSelectCategory,
   onNewGame,
-  onMainMenu
 }) => {
-  const { modalState, showModal, hideModal, closeSettings, closeMenu } = useModal();
-  const { currentQuizId, selectedMode, setQuizStates } = useQuizContext();
+  const { modalState, hideModal } = useModal();
+  const { selectedMode } = useQuizContext();
 
-  if (!currentQuizId && modalState.endMessage) {
-    console.error('Quiz ID missing for end message');
+  const [timerStarted, setTimerStarted] = useState(false);
+  const [timerEnded, setTimerEnded] = useState(false);
+  const [showAnswer, setShowAnswer] = useState(false);
+
+  const timerHandlers = {
+    startTimer: () => setTimerStarted(true),
+    endTimer: () => setTimerEnded(true),
+    resetTimer: () => {
+      setTimerStarted(false);
+      setTimerEnded(false);
+    },
+  };
+
+  const answerHandlers = {
+    showAnswer: () => setShowAnswer(true),
+    hideAnswer: () => setShowAnswer(false),
+  };
+
+  const ModeComponent = useMemo(() => {
+    const mode = gameModeFactory.getMode(selectedMode);
+    if (!mode) {
+      console.warn(`Game mode ${selectedMode} not found`);
+      return null;
+    }
+    return mode;
+  }, [selectedMode]);
+
+  if (!ModeComponent || !modalState.modal) {
     return null;
   }
 
+  const WarningMessageElement = isBlockUsed ? (
+    <WarningMessage
+      onTryAgain={onBlockRetry}
+      onContinue={onModalClose}
+      message="Этот блок уже использован. Хотите попробовать ещё раз?"
+    />
+  ) : null;
+
   return (
-    <>
-      <ConfettiAnimation isRunning={modalState.confetti} />
-
-      {selectedBlock && (
-        <Modal
-          block={selectedBlock}
-          categoryName={selectedCategory?.name ?? 'Без категории'}
-          onClose={onModalClose}
-          selectedMode={selectedMode ?? 1}
-          onSelectCategory={onSelectCategory}
-          isBlockUsed={isBlockUsed}
-          onTryAgain={onBlockRetry}
-          onContinue={onModalClose}
-        />
-      )}
-
-      {modalState.menu && (
-        <MenuModal
-          showSettings={() => showModal('settings')}
-          showMainMenu={onMainMenu}
-          onNewGame={onNewGame}
-          isVisible={modalState.menu}
-          closeMenuModal={() => hideModal('menu')}
-        />
-      )}
-
-      {modalState.settings && <Settings onClose={() => hideModal('settings')} />}
-
-      {modalState.endMessage && currentQuizId && (
-        <EndMessage
-          currentQuizId={currentQuizId}
-          setQuizStates={setQuizStates}
-          onNewGame={onNewGame}
-          onMainMenu={onMainMenu}
-        />
-      )}
-    </>
+    <Modal
+      block={selectedBlock}
+      categoryName={selectedCategory?.name ?? 'Без категории'}
+      onClose={() => hideModal('modal')}
+      modeComponent={ModeComponent}
+      timerState={{ timerStarted, timerEnded }}
+      timerHandlers={timerHandlers}
+      answerState={{ showAnswer }}
+      answerHandlers={answerHandlers}
+      onSelectCategory={onSelectCategory}
+      isBlockUsed={isBlockUsed}
+      warningMessage={WarningMessageElement}
+    />
   );
 };
 

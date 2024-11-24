@@ -1,5 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { resetQAState, handleQAActions } from './QAModeUtils';
+// src/components/features/Game/GameModes/QAMode/QAMode.tsx
+import React, { useState, useEffect, useCallback } from 'react';
+import { Button, BUTTON_VARIANTS } from '../../../../common/Button/Button';
+import Timer from '../../../../common/Timer/Timer';
+import { resetQAState } from './QAModeUtils';
 import type { GameModeProps } from '../../../../../types/gameModes.types';
 import styles from './QAMode.module.css';
 
@@ -19,40 +22,22 @@ const QAMode: React.FC<GameModeProps> = ({
   const [forceStopped, setForceStopped] = useState<boolean>(false);
   const [answerShown, setAnswerShown] = useState<boolean>(false);
 
-  useEffect(() => {
-    resetQAState(setForceStopped, setAnswerShown, setLocalTimerStarted);
-  }, [block]);
+  const handleSelectCategoryClick = useCallback(() => {
+    if (block && block.categoryId) {
+      handleSelectCategory(block.categoryId, block.id); // Передаем правильные параметры
+    }
+  }, [block, handleSelectCategory]);
 
   return (
-    <div className="qa-mode-container">
-      <button
-        onClick={() =>
-          handleQAActions.startTimer(setTimerStarted, setLocalTimerStarted)
-        }
-        disabled={timerStarted}
-      >
-        Start Timer
-      </button>
-
-      <button
-        onClick={() =>
-          handleQAActions.forceStop(handleForceStop, setForceStopped)
-        }
-        disabled={forceStopped}
-      >
-        Force Stop
-      </button>
-
-      <button
-        onClick={() =>
-          handleQAActions.showAnswer(handleShowAnswer, setAnswerShown)
-        }
-        disabled={answerShown}
-      >
-        Show Answer
-      </button>
+    <div className={styles.qaModeContainer}>
+      {answerShown && (
+        <Button
+          variant={BUTTON_VARIANTS.SELECT_CATEGORY}
+          onClick={handleSelectCategoryClick} // Исправлено
+        />
+      )}
     </div>
   );
 };
 
-export default QAMode;
+export default React.memo(QAMode);

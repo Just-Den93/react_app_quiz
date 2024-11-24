@@ -1,63 +1,29 @@
-import React, { useEffect, useState } from 'react';
+// src/components/App/App.tsx
+import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import QuizPage from '../features/Quiz/QuizPage/QuizPage';
-import QuizCard from '../features/Quiz/QuizCard/QuizCard';
-import Sidebar from '../layout/Sidebar/Sidebar';
 import styles from './App.module.css';
 import { useQuizContext } from '../../context/QuizContext';
-import { loadUniqueUuids } from '../../utils/loadJsonData';
+import { useQuizData } from './hooks/useQuizData';
+import { useQuizState } from './hooks/useQuizState';
 import { startQuizHandler } from './appUtils';
 import type { QuizData } from '../../types/quiz.types';
 
-const App: React.FC = () => {
-  const { 
-    showQuizPage, 
-    setShowQuizPage, 
-    setSelectedMode, 
-    setCurrentQuizId,
-    currentQuizId 
-  } = useQuizContext();
-  
-  const [quizData, setQuizData] = useState<QuizData[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+interface AppProps {
+  Sidebar: React.ComponentType;
+  QuizCard: React.ComponentType<{
+    startQuiz: () => void;
+    mode: number;
+    uuid: string;
+    name: string;
+    categories: QuizData['categories'];
+  }>;
+  QuizPage: React.ComponentType;
+}
 
-  // Загрузка данных викторины
-  useEffect(() => {
-    try {
-      const uniqueData = loadUniqueUuids();
-      console.log('Loaded quiz data:', uniqueData);
-      setQuizData(uniqueData);
-    } catch (err) {
-      console.error('Error loading quiz data:', err);
-      setError('Ошибка загрузки данных');
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  // Восстановление сохраненного состояния
-  useEffect(() => {
-    const savedQuizId = localStorage.getItem('currentQuizId');
-    const savedMode = localStorage.getItem('selectedMode');
-    const savedShowQuizPage = localStorage.getItem('showQuizPage');
-
-    console.log('Saved state:', { savedQuizId, savedMode, savedShowQuizPage });
-
-    // Очищаем некорректное состояние
-    if (savedShowQuizPage === 'true' && !savedQuizId) {
-      localStorage.removeItem('showQuizPage');
-      setShowQuizPage(false);
-      return;
-    }
-
-    // Восстанавливаем состояние только если есть все необходимые данные
-    if (savedQuizId && savedMode) {
-      setCurrentQuizId(savedQuizId);
-      setSelectedMode(Number(savedMode));
-      setShowQuizPage(savedShowQuizPage === 'true');
-    }
-  }, [setCurrentQuizId, setSelectedMode, setShowQuizPage]);
+const App: React.FC<AppProps> = ({ Sidebar, QuizCard, QuizPage }) => {
+  const { showQuizPage, setShowQuizPage, setSelectedMode, setCurrentQuizId, currentQuizId } = useQuizContext();
+  const { quizData, isLoading, error } = useQuizData();
+  useQuizState();
 
   if (isLoading) {
     return <div>Загрузка...</div>;
@@ -67,7 +33,6 @@ const App: React.FC = () => {
     return <div>Ошибка: {error}</div>;
   }
 
-  // Если showQuizPage true, но нет currentQuizId, сбрасываем к начальному состоянию
   if (showQuizPage && !currentQuizId) {
     setShowQuizPage(false);
   }
@@ -87,13 +52,7 @@ const App: React.FC = () => {
                       <QuizCard
                         key={data.uuid}
                         startQuiz={() =>
-                          startQuizHandler(
-                            data.mode,
-                            data.uuid,
-                            setSelectedMode,
-                            setCurrentQuizId,
-                            setShowQuizPage
-                          )
+                          startQuizHandler(data.mode, data.uuid, setSelectedMode, setCurrentQuizId, setShowQuizPage)
                         }
                         mode={data.mode}
                         uuid={data.uuid}

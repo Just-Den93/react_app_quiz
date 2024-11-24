@@ -1,17 +1,21 @@
 import type { FC } from 'react';
-import type { QuizBlock } from './quiz.types';
 
-// Расширяем GameBlock, делая categoryId обязательным
-export interface GameBlock extends Omit<QuizBlock, 'categoryId'> {
+// Определяем интерфейс для игрового блока
+export interface GameBlock {
+  id: number;
+  question: string;
+  text: string;
   options: string[];
-  categoryId: string; // Делаем обязательным
+  categoryId: string;
+  'correct answer': string;
 }
 
+// Пропсы для игровых режимов
 export interface GameModeProps {
   block: GameBlock;
   categoryName: string;
   showAnswer: boolean;
-  setTimerStarted: React.Dispatch<React.SetStateAction<boolean>>;
+  setTimerStarted: (value: boolean) => void;
   timerStarted: boolean;
   timerEnded: boolean;
   handleTimerEnd: () => void;
@@ -22,6 +26,7 @@ export interface GameModeProps {
 
 export type GameModeComponent = FC<GameModeProps>;
 
+// Конфигурация игрового режима
 export interface GameModeConfig {
   id: number;
   name: string;

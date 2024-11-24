@@ -1,92 +1,64 @@
 import React from 'react';
 import styles from './Modal.module.css';
-import QAMode from '../../features/Game/GameModes/QAMode/QAMode';
-import SelectionMode from '../../features/Game/GameModes/SelectionMode/SelectionMode';
-import WarningMessage from '../../features/Game/Messages/WarningMessage/WarningMessage';
-import { useModalTimer } from './hooks/useModalTimer';
-import { useModalAnswer } from './hooks/useModalAnswer';
 import type { QuizBlock } from '../../../types/quiz.types';
-import type { GameBlock, GameModeComponent, GameModeProps } from '../../../types/gameModes.types';
-import { gameModeFactory } from './factories/gameModeFactory';
-
-// Приводим компоненты к правильному типу
-const QAModeWithTypes: GameModeComponent = QAMode as unknown as GameModeComponent;
-const SelectionModeWithTypes: GameModeComponent = SelectionMode as unknown as GameModeComponent;
-
-// Регистрируем доступные режимы
-gameModeFactory.registerMode({
-  id: 1,
-  name: 'QA Mode',
-  component: QAModeWithTypes,
-  options: {
-    timerDuration: 30,
-    allowHints: true,
-    maxAttempts: 3
-  }
-});
-
-gameModeFactory.registerMode({
-  id: 2,
-  name: 'Selection Mode',
-  component: SelectionModeWithTypes,
-  options: {
-    timerDuration: 45,
-    allowHints: false,
-    maxAttempts: 1
-  }
-});
+import type { GameModeProps, GameBlock } from '../../../types/gameModes.types';
 
 interface ModalProps {
   block: QuizBlock | null;
   categoryName: string;
   onClose: () => void;
-  selectedMode: number;
+  modeComponent: React.ComponentType<GameModeProps>;
+  timerState: { timerStarted: boolean; timerEnded: boolean };
+  timerHandlers: { startTimer: () => void; endTimer: () => void; resetTimer: () => void };
+  answerState: { showAnswer: boolean };
+  answerHandlers: { showAnswer: () => void; hideAnswer: () => void };
   onSelectCategory: (categoryId: string, blockId: number) => void;
   isBlockUsed: boolean;
-  onTryAgain: () => void;
-  onContinue: () => void;
+  warningMessage: React.ReactNode;
 }
 
-export const Modal: React.FC<ModalProps> = ({
+const Modal: React.FC<ModalProps> = ({
   block,
   categoryName,
   onClose,
-  selectedMode,
+  modeComponent: ModeComponent,
+  timerState,
+  timerHandlers,
+  answerState,
+  answerHandlers,
   onSelectCategory,
   isBlockUsed,
-  onTryAgain,
-  onContinue,
+  warningMessage,
 }) => {
-  const { timerState, timerHandlers } = useModalTimer();
-  const { answerState, answerHandlers } = useModalAnswer();
+  // Перемещаем useCallback наверх компонента
+  const handleSelectCategory = React.useCallback((categoryId: string, blockId: number) => {
+    if (categoryId && typeof blockId === 'number') {
+      onSelectCategory(categoryId, blockId);
+    }
+  }, [onSelectCategory]);
 
-  const ModeComponent = React.useMemo(() => 
-    gameModeFactory.getMode(selectedMode), 
-    [selectedMode]
-  );
-
-  if (!block || !block.options || !block.categoryId) {
+  if (!block) {
     return null;
   }
 
-  if (!ModeComponent) {
-    console.warn(`Game mode ${selectedMode} is not registered`);
-    return null;
-  }
-
+  // Создаем правильно типизированный объект блока
   const gameBlock: GameBlock = {
-    ...block,
-    options: block.options,
-    categoryId: block.categoryId
+    id: block.id,
+    question: block.question,
+    text: block.text,
+    options: block.options ?? [],
+    categoryId: block.categoryId ?? '',
+    'correct answer': block['correct answer'] ?? 'Ответ не указан'
   };
 
   return (
     <div className={`${styles.modal} ${styles.show}`} onClick={onClose}>
       <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
-        <span className={styles.closeButton} onClick={onClose}>&times;</span>
-
+        <span className={styles.closeButton} onClick={onClose}>
+          &times;
+        </span>
         {isBlockUsed ? (
-          <WarningMessage onTryAgain={onTryAgain} onContinue={onContinue} />
+          warningMessage
         ) : (
           <ModeComponent
             block={gameBlock}
@@ -97,8 +69,8 @@ export const Modal: React.FC<ModalProps> = ({
             timerEnded={timerState.timerEnded}
             handleTimerEnd={timerHandlers.endTimer}
             handleShowAnswer={answerHandlers.showAnswer}
-            handleSelectCategory={(categoryId, blockId) => onSelectCategory(categoryId, blockId)}
-            handleForceStop={() => timerHandlers.resetTimer()}
+            handleSelectCategory={() => handleSelectCategory(gameBlock.categoryId, gameBlock.id)}
+            handleForceStop={timerHandlers.resetTimer}
           />
         )}
       </div>
