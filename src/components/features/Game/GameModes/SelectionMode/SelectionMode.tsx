@@ -18,7 +18,7 @@ interface Styles {
   [key: string]: string;
 }
 
-interface Block {
+interface GameBlock {
   id: number;
   question: string;
   text: string;
@@ -28,7 +28,14 @@ interface Block {
 }
 
 interface SelectionModeProps {
-  block: Block;
+  block: {
+    id: number;
+    question: string;
+    text: string;
+    options: string[];
+    categoryId: string; // Здесь categoryId обязателен
+    'correct answer': string;
+  };
   categoryName: string;
   showAnswer: boolean;
   setTimerStarted: React.Dispatch<React.SetStateAction<boolean>>;
@@ -123,7 +130,7 @@ const SelectionMode: React.FC<SelectionModeProps> = ({
             onClick={() =>
               handleShowAnswerInternal(
                 block,
-                styles as Styles, // Приведение к типу
+                styles as Styles,
                 handleShowAnswer,
                 setAnswerShown,
                 setHighlightedOptions

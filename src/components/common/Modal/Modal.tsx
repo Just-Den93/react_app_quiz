@@ -1,20 +1,43 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
+import styles from './Modal.module.css';
 import QAMode from '../../features/Game/GameModes/QAMode/QAMode';
 import SelectionMode from '../../features/Game/GameModes/SelectionMode/SelectionMode';
 import WarningMessage from '../../features/Game/Messages/WarningMessage/WarningMessage';
-import styles from './Modal.module.css';
+import { useModalTimer } from './hooks/useModalTimer';
+import { useModalAnswer } from './hooks/useModalAnswer';
+import type { QuizBlock } from '../../../types/quiz.types';
+import type { GameBlock, GameModeComponent, GameModeProps } from '../../../types/gameModes.types';
+import { gameModeFactory } from './factories/gameModeFactory';
 
-interface Block {
-  id: number;
-  question: string;
-  text: string;
-  categoryId?: string;
-  'correct answer'?: string;
-  options?: string[];
-}
+// Приводим компоненты к правильному типу
+const QAModeWithTypes: GameModeComponent = QAMode as unknown as GameModeComponent;
+const SelectionModeWithTypes: GameModeComponent = SelectionMode as unknown as GameModeComponent;
+
+// Регистрируем доступные режимы
+gameModeFactory.registerMode({
+  id: 1,
+  name: 'QA Mode',
+  component: QAModeWithTypes,
+  options: {
+    timerDuration: 30,
+    allowHints: true,
+    maxAttempts: 3
+  }
+});
+
+gameModeFactory.registerMode({
+  id: 2,
+  name: 'Selection Mode',
+  component: SelectionModeWithTypes,
+  options: {
+    timerDuration: 45,
+    allowHints: false,
+    maxAttempts: 1
+  }
+});
 
 interface ModalProps {
-  block: Block | null;
+  block: QuizBlock | null;
   categoryName: string;
   onClose: () => void;
   selectedMode: number;
@@ -24,16 +47,7 @@ interface ModalProps {
   onContinue: () => void;
 }
 
-interface ModeComponentsType {
-  [key: number]: React.ComponentType<any>;
-}
-
-const modeComponents: ModeComponentsType = {
-  1: QAMode,
-  2: SelectionMode,
-};
-
-const Modal: React.FC<ModalProps> = ({
+export const Modal: React.FC<ModalProps> = ({
   block,
   categoryName,
   onClose,
@@ -43,70 +57,53 @@ const Modal: React.FC<ModalProps> = ({
   onTryAgain,
   onContinue,
 }) => {
-  const ModeComponent = modeComponents[selectedMode];
+  const { timerState, timerHandlers } = useModalTimer();
+  const { answerState, answerHandlers } = useModalAnswer();
 
-  const [timerStarted, setTimerStarted] = useState<boolean>(false);
-  const [timerEnded, setTimerEnded] = useState<boolean>(false);
-  const [showAnswer, setShowAnswer] = useState<boolean>(false);
+  const ModeComponent = React.useMemo(() => 
+    gameModeFactory.getMode(selectedMode), 
+    [selectedMode]
+  );
 
-  useEffect(() => {
-    resetModalState(setTimerStarted, setShowAnswer, setTimerEnded);
-  }, [block]);
-
-  const resetModalState = (
-    setTimerStarted: React.Dispatch<React.SetStateAction<boolean>>,
-    setShowAnswer: React.Dispatch<React.SetStateAction<boolean>>,
-    setTimerEnded: React.Dispatch<React.SetStateAction<boolean>>
-  ): void => {
-    setTimerStarted(false);
-    setShowAnswer(false);
-    setTimerEnded(false);
-  };
-
-  const handleModalActions = {
-    setTimerEnded: (setTimerEnded: React.Dispatch<React.SetStateAction<boolean>>): void => {
-      setTimerEnded(true);
-    },
-    setShowAnswer: (setShowAnswer: React.Dispatch<React.SetStateAction<boolean>>): void => {
-      setShowAnswer(true);
-    },
-    forceStop: (setTimerEnded: React.Dispatch<React.SetStateAction<boolean>>): void => {
-      setTimerEnded(true);
-    },
-  };
-
-  if (!block) {
+  if (!block || !block.options || !block.categoryId) {
     return null;
   }
+
+  if (!ModeComponent) {
+    console.warn(`Game mode ${selectedMode} is not registered`);
+    return null;
+  }
+
+  const gameBlock: GameBlock = {
+    ...block,
+    options: block.options,
+    categoryId: block.categoryId
+  };
 
   return (
     <div className={`${styles.modal} ${styles.show}`} onClick={onClose}>
       <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
-        <span className={styles.closeButton} onClick={onClose}>
-          &times;
-        </span>
+        <span className={styles.closeButton} onClick={onClose}>&times;</span>
 
         {isBlockUsed ? (
           <WarningMessage onTryAgain={onTryAgain} onContinue={onContinue} />
         ) : (
-          ModeComponent && (
-            <ModeComponent
-              block={block}
-              categoryName={categoryName}
-              showAnswer={showAnswer}
-              setTimerStarted={setTimerStarted}
-              timerStarted={timerStarted}
-              timerEnded={timerEnded}
-              handleTimerEnd={() => handleModalActions.setTimerEnded(setTimerEnded)}
-              handleShowAnswer={() => handleModalActions.setShowAnswer(setShowAnswer)}
-              handleSelectCategory={() => onSelectCategory(block.categoryId!, block.id)}
-              handleForceStop={() => handleModalActions.forceStop(setTimerEnded)}
-            />
-          )
+          <ModeComponent
+            block={gameBlock}
+            categoryName={categoryName}
+            showAnswer={answerState.showAnswer}
+            setTimerStarted={timerHandlers.startTimer}
+            timerStarted={timerState.timerStarted}
+            timerEnded={timerState.timerEnded}
+            handleTimerEnd={timerHandlers.endTimer}
+            handleShowAnswer={answerHandlers.showAnswer}
+            handleSelectCategory={(categoryId, blockId) => onSelectCategory(categoryId, blockId)}
+            handleForceStop={() => timerHandlers.resetTimer()}
+          />
         )}
       </div>
     </div>
   );
 };
 
-export default Modal;
+export default React.memo(Modal);
