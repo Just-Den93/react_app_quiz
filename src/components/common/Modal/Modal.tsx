@@ -15,6 +15,7 @@ interface ModalProps {
   onSelectCategory: (categoryId: string, blockId: number) => void;
   isBlockUsed: boolean;
   warningMessage: React.ReactNode;
+  children?: React.ReactNode;
 }
 
 const Modal: React.FC<ModalProps> = ({
@@ -29,26 +30,19 @@ const Modal: React.FC<ModalProps> = ({
   onSelectCategory,
   isBlockUsed,
   warningMessage,
+  children, // Добавляем children
 }) => {
-  // Перемещаем useCallback наверх компонента
-  const handleSelectCategory = React.useCallback((categoryId: string, blockId: number) => {
-    if (categoryId && typeof blockId === 'number') {
-      onSelectCategory(categoryId, blockId);
-    }
-  }, [onSelectCategory]);
-
   if (!block) {
     return null;
   }
 
-  // Создаем правильно типизированный объект блока
   const gameBlock: GameBlock = {
     id: block.id,
     question: block.question,
     text: block.text,
     options: block.options ?? [],
     categoryId: block.categoryId ?? '',
-    'correct answer': block['correct answer'] ?? 'Ответ не указан'
+    'correct answer': block['correct answer'] ?? 'Ответ не указан',
   };
 
   return (
@@ -57,21 +51,27 @@ const Modal: React.FC<ModalProps> = ({
         <span className={styles.closeButton} onClick={onClose}>
           &times;
         </span>
-        {isBlockUsed ? (
+        {children ? ( // Если есть children, рендерим их
+          children
+        ) : isBlockUsed ? (
           warningMessage
         ) : (
-          <ModeComponent
-            block={gameBlock}
-            categoryName={categoryName}
-            showAnswer={answerState.showAnswer}
-            setTimerStarted={timerHandlers.startTimer}
-            timerStarted={timerState.timerStarted}
-            timerEnded={timerState.timerEnded}
-            handleTimerEnd={timerHandlers.endTimer}
-            handleShowAnswer={answerHandlers.showAnswer}
-            handleSelectCategory={() => handleSelectCategory(gameBlock.categoryId, gameBlock.id)}
-            handleForceStop={timerHandlers.resetTimer}
-          />
+          ModeComponent && (
+            <ModeComponent
+              block={gameBlock}
+              categoryName={categoryName}
+              showAnswer={answerState?.showAnswer || false}
+              setTimerStarted={timerHandlers?.startTimer || (() => {})}
+              timerStarted={timerState?.timerStarted || false}
+              timerEnded={timerState?.timerEnded || false}
+              handleTimerEnd={timerHandlers?.endTimer || (() => {})}
+              handleShowAnswer={answerHandlers?.showAnswer || (() => {})}
+              handleSelectCategory={() =>
+                onSelectCategory?.(gameBlock.categoryId, gameBlock.id)
+              }
+              handleForceStop={timerHandlers?.resetTimer || (() => {})}
+            />
+          )
         )}
       </div>
     </div>

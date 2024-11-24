@@ -1,10 +1,7 @@
-// src/components/common/ModalManager/ModalManager.tsx
-import React, { useState, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { useModal } from './useModal';
-import { useQuizContext } from '../../../context/QuizContext';
-import Modal from '../Modal/Modal';
 import WarningMessage from '../../features/Game/Messages/WarningMessage/WarningMessage';
-import { gameModeFactory } from './factories/gameModeFactory';
+import Modal from '../Modal/Modal';
 import { QuizBlock, Category } from '../../../types/quiz.types';
 
 interface ModalManagerProps {
@@ -13,11 +10,10 @@ interface ModalManagerProps {
   isBlockUsed: boolean;
   onModalClose: () => void;
   onBlockRetry: () => void;
-  onSelectCategory: (categoryId: string, blockId: number) => void;
-  onNewGame: () => void;
-  onMainMenu: () => void; // Добавлено
+  onSelectCategory?: (categoryId: string, blockId: number) => void;
+  onNewGame: () => void; 
+  onMainMenu: () => void; 
 }
-
 
 export const ModalManager: React.FC<ModalManagerProps> = ({
   selectedBlock,
@@ -25,65 +21,73 @@ export const ModalManager: React.FC<ModalManagerProps> = ({
   isBlockUsed,
   onModalClose,
   onBlockRetry,
-  onSelectCategory,
-  onNewGame,
+  onSelectCategory = () => {},
 }) => {
   const { modalState, hideModal } = useModal();
-  const { selectedMode } = useQuizContext();
 
-  const [timerStarted, setTimerStarted] = useState(false);
-  const [timerEnded, setTimerEnded] = useState(false);
-  const [showAnswer, setShowAnswer] = useState(false);
-
-  const timerHandlers = {
-    startTimer: () => setTimerStarted(true),
-    endTimer: () => setTimerEnded(true),
-    resetTimer: () => {
-      setTimerStarted(false);
-      setTimerEnded(false);
-    },
+  // Состояния таймера по умолчанию
+  const defaultTimerState = {
+    timerStarted: false,
+    timerEnded: false
   };
 
-  const answerHandlers = {
-    showAnswer: () => setShowAnswer(true),
-    hideAnswer: () => setShowAnswer(false),
+  // Обработчики таймера по умолчанию
+  const defaultTimerHandlers = {
+    startTimer: () => {},
+    endTimer: () => {},
+    resetTimer: () => {}
   };
 
-  const ModeComponent = useMemo(() => {
-    const mode = gameModeFactory.getMode(selectedMode);
-    if (!mode) {
-      console.warn(`Game mode ${selectedMode} not found`);
-      return null;
+  // Состояние ответа по умолчанию
+  const defaultAnswerState = {
+    showAnswer: false
+  };
+
+  // Обработчики ответа по умолчанию
+  const defaultAnswerHandlers = {
+    showAnswer: () => {},
+    hideAnswer: () => {}
+  };
+
+  const ModalContent = useMemo(() => {
+    if (isBlockUsed) {
+      return (
+        <WarningMessage
+          onTryAgain={onBlockRetry}
+          onContinue={onModalClose}
+          message="Этот блок уже использован. Хотите попробовать ещё раз?"
+        />
+      );
     }
-    return mode;
-  }, [selectedMode]);
+    return <div>Модальное окно активно, но контент не определён.</div>;
+  }, [isBlockUsed, onBlockRetry, onModalClose]);
 
-  if (!ModeComponent || !modalState.modal) {
+  if (!modalState.modal) {
     return null;
   }
-
-  const WarningMessageElement = isBlockUsed ? (
-    <WarningMessage
-      onTryAgain={onBlockRetry}
-      onContinue={onModalClose}
-      message="Этот блок уже использован. Хотите попробовать ещё раз?"
-    />
-  ) : null;
 
   return (
     <Modal
       block={selectedBlock}
       categoryName={selectedCategory?.name ?? 'Без категории'}
       onClose={() => hideModal('modal')}
-      modeComponent={ModeComponent}
-      timerState={{ timerStarted, timerEnded }}
-      timerHandlers={timerHandlers}
-      answerState={{ showAnswer }}
-      answerHandlers={answerHandlers}
+      modeComponent={() => <div />} // Пустой компонент по умолчанию
+      timerState={defaultTimerState}
+      timerHandlers={defaultTimerHandlers}
+      answerState={defaultAnswerState}
+      answerHandlers={defaultAnswerHandlers}
       onSelectCategory={onSelectCategory}
       isBlockUsed={isBlockUsed}
-      warningMessage={WarningMessageElement}
-    />
+      warningMessage={
+        <WarningMessage
+          onTryAgain={onBlockRetry}
+          onContinue={onModalClose}
+          message="Этот блок уже использован. Хотите попробовать ещё раз?"
+        />
+      }
+    >
+      {ModalContent}
+    </Modal>
   );
 };
 

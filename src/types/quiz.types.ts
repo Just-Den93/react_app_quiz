@@ -55,10 +55,24 @@ export interface QuizContextValue {
     updateQuizState: (uuid: string, newState: Partial<QuizState>) => void;
     markBlockAsUsed: (quizId: string, categoryId: string, blockId: number) => void;
   };
+  timerState: {
+    timerStarted: boolean;
+    timerEnded: boolean;
+  };
+  timerHandlers: {
+    startTimer: () => void;
+    endTimer: () => void;
+    resetTimer: () => void;
+  };
+  answerState: {
+    showAnswer: boolean;
+  };
+  answerHandlers: {
+    showAnswer: () => void;
+    hideAnswer: () => void;
+  };
 }
 
-
-// Типы данных викторины
 export interface QuizBlock {
   id: number;
   question: string;

@@ -58,6 +58,34 @@ interface QuizProviderProps {
 }
 
 const QuizProvider: React.FC<QuizProviderProps> = ({ children }) => {
+  // Перенос хуков в компонент
+  const [timerState, setTimerState] = useState({
+    timerStarted: false,
+    timerEnded: false,
+  });
+
+  const [answerState, setAnswerState] = useState({
+    showAnswer: false,
+  });
+
+  const timerHandlers = useMemo(
+    () => ({
+      startTimer: () => setTimerState((prev) => ({ ...prev, timerStarted: true })),
+      endTimer: () => setTimerState((prev) => ({ ...prev, timerEnded: true })),
+      resetTimer: () =>
+        setTimerState({ timerStarted: false, timerEnded: false }),
+    }),
+    []
+  );
+
+  const answerHandlers = useMemo(
+    () => ({
+      showAnswer: () => setAnswerState({ showAnswer: true }),
+      hideAnswer: () => setAnswerState({ showAnswer: false }),
+    }),
+    []
+  );
+
   const [showQuizPage, setShowQuizPage] = useState<boolean>(() => {
     const savedValue = safeStorage.getItem('showQuizPage');
     return savedValue === 'true';
@@ -80,7 +108,6 @@ const QuizProvider: React.FC<QuizProviderProps> = ({ children }) => {
         : initialQuizStatesStorage;
     }
   );
-
 
   const [data, setData] = useState<Category[] | null>(null);
 
@@ -165,10 +192,13 @@ const QuizProvider: React.FC<QuizProviderProps> = ({ children }) => {
     };
     loadQuizData();
   }, [selectedMode, currentQuizId]);
-  
 
   const contextValue = useMemo(
     () => ({
+      timerState,
+      timerHandlers,
+      answerState,
+      answerHandlers,
       showQuizPage,
       setShowQuizPage,
       selectedMode,
@@ -188,6 +218,10 @@ const QuizProvider: React.FC<QuizProviderProps> = ({ children }) => {
       },
     }),
     [
+      timerState,
+      timerHandlers,
+      answerState,
+      answerHandlers,
       showQuizPage,
       selectedMode,
       currentQuizId,
@@ -200,9 +234,7 @@ const QuizProvider: React.FC<QuizProviderProps> = ({ children }) => {
     ]
   );
 
-  return (
-    <QuizContext.Provider value={contextValue}>{children}</QuizContext.Provider>
-  );
+  return <QuizContext.Provider value={contextValue}>{children}</QuizContext.Provider>;
 };
 
 export { QuizProvider, QuizContext };
