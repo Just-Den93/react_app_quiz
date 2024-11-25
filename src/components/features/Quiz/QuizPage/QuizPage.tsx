@@ -72,10 +72,21 @@ const QuizPage: React.FC = () => {
 
   return (
     <div className={styles.quiz_page} id="outer-container">
-      <BurgerMenu 
-        isOpen={menuOpen}
-        onStateChange={handleMenuStateChange}
-      />
+		
+<BurgerMenu 
+  isOpen={menuOpen}
+  onStateChange={handleMenuStateChange}
+  onNewGame={() => {
+    handleNewGame();
+    setMenuOpen(false);
+  }}
+  onContinue={() => setMenuOpen(false)}
+  onMainMenu={() => {
+    handleMainMenu();
+    setMenuOpen(false);
+  }}
+  onSettings={() => setMenuOpen(false)}
+/>
       
       <main id="page-wrap">
         <img

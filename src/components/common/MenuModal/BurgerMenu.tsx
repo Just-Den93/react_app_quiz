@@ -6,9 +6,20 @@ import styles from './BurgerMenu.module.css';
 interface BurgerMenuProps {
     isOpen: boolean;
     onStateChange: (state: { isOpen: boolean }) => void;
+    onNewGame: () => void;
+    onContinue: () => void;
+    onMainMenu: () => void;
+    onSettings: () => void;
 }
 
-const BurgerMenu: React.FC<BurgerMenuProps> = ({ isOpen, onStateChange }) => {
+const BurgerMenu: React.FC<BurgerMenuProps> = ({
+    isOpen,
+    onStateChange,
+    onNewGame,
+    onContinue,
+    onMainMenu,
+    onSettings
+}) => {
     const menuStyles = {
         bmBurgerButton: {
             position: 'fixed' as const,
@@ -45,18 +56,21 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({ isOpen, onStateChange }) => {
         },
         bmMenu: {
             background: '#03564a',
-            padding: '2.5em 1.5em 0',
-            fontSize: '1.15em'
+            padding: '0',
+            fontSize: '1.15em',
+            height: '100%',
+            display: 'flex',
+            flexDirection: 'column' as const
         },
         bmMorphShape: {
             fill: '#03564a'
         },
         bmItemList: {
-            color: '#b8b7ad',
-            padding: '0.8em',
             display: 'flex',
             flexDirection: 'column' as const,
-            gap: '1rem'
+            height: '100%',
+            margin: '0',
+            padding: '0'
         },
         bmItem: {
             display: 'block',
@@ -74,20 +88,18 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({ isOpen, onStateChange }) => {
         }
     };
 
-    const handleNewGame = () => {
-        // Добавить обработчик для новой игры
+    const topSection = {
+        padding: '4em 1rem 1rem',
+        display: 'flex',
+        flexDirection: 'column' as const,
+        gap: '1rem'
     };
 
-    const handleContinue = () => {
-        // Добавить обработчик для продолжения
-    };
-
-    const handleMainMenu = () => {
-        // Добавить обработчик для главного меню
-    };
-
-    const handleSettings = () => {
-        // Добавить обработчик для настроек
+    const bottomSection = {
+        background: '#046d5f',
+        marginTop: 'auto',
+        height: '40%',
+        width: '100%'
     };
 
     return (
@@ -100,22 +112,25 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({ isOpen, onStateChange }) => {
             width="300"
             crossButtonClassName={styles.crossBtn}
         >
-            <Button
-                variant={BUTTON_VARIANTS.NEW_GAME}
-                onClick={handleNewGame}
-            />
-            <Button
-                variant={BUTTON_VARIANTS.CONTINUE}
-                onClick={handleContinue}
-            />
-            <Button
-                variant={BUTTON_VARIANTS.MAIN_MENU}
-                onClick={handleMainMenu}
-            />
-            <Button
-                variant={BUTTON_VARIANTS.SETTINGS}
-                onClick={handleSettings}
-            />
+            <div style={topSection}>
+                <Button
+                    variant={BUTTON_VARIANTS.NEW_GAME}
+                    onClick={onNewGame}
+                />
+                <Button
+                    variant={BUTTON_VARIANTS.CONTINUE}
+                    onClick={onContinue}
+                />
+                <Button
+                    variant={BUTTON_VARIANTS.MAIN_MENU}
+                    onClick={onMainMenu}
+                />
+                <Button
+                    variant={BUTTON_VARIANTS.SETTINGS}
+                    onClick={onSettings}
+                />
+            </div>
+            <div style={bottomSection} />
         </Menu>
     );
 };
