@@ -92,13 +92,13 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({
         padding: '4em 1rem 1rem',
         display: 'flex',
         flexDirection: 'column' as const,
-        gap: '1rem'
+      //   gap: '1rem'
     };
 
     const bottomSection = {
         background: '#046d5f',
         marginTop: 'auto',
-        height: '40%',
+        height: '50%',
         width: '100%'
     };
 
