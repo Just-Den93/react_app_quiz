@@ -1,13 +1,8 @@
-// src/components/common/ModalManager/ModalManager.tsx
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useModal } from './useModal';
-import { useQuizContext } from '../../../context/QuizContext';
-import MenuModal from '../MenuModal/MenuModal';
+import WarningMessage from '../../features/Game/Messages/WarningMessage/WarningMessage';
 import Modal from '../Modal/Modal';
-import Settings from '../../features/Game/Settings/Settings';
-import EndMessage from '../../features/Game/Messages/EndMessage/EndMessage';
-import ConfettiAnimation from '../../features/Game/Animation/ConfettiAnimation';
-import { Category, QuizBlock } from '../../../types/quiz.types';
+import { QuizBlock, Category } from '../../../types/quiz.types';
 
 interface ModalManagerProps {
   selectedBlock: QuizBlock | null;
@@ -15,9 +10,9 @@ interface ModalManagerProps {
   isBlockUsed: boolean;
   onModalClose: () => void;
   onBlockRetry: () => void;
-  onSelectCategory: (categoryId: string, blockId: number) => void;
-  onNewGame: () => void;
-  onMainMenu: () => void;
+  onSelectCategory?: (categoryId: string, blockId: number) => void;
+  onNewGame: () => void; 
+  onMainMenu: () => void; 
 }
 
 export const ModalManager: React.FC<ModalManagerProps> = ({
@@ -26,56 +21,73 @@ export const ModalManager: React.FC<ModalManagerProps> = ({
   isBlockUsed,
   onModalClose,
   onBlockRetry,
-  onSelectCategory,
-  onNewGame,
-  onMainMenu
+  onSelectCategory = () => {},
 }) => {
-  const { modalState, showModal, hideModal, closeSettings, closeMenu } = useModal();
-  const { currentQuizId, selectedMode, setQuizStates } = useQuizContext();
+  const { modalState, hideModal } = useModal();
 
-  if (!currentQuizId && modalState.endMessage) {
-    console.error('Quiz ID missing for end message');
+  // Состояния таймера по умолчанию
+  const defaultTimerState = {
+    timerStarted: false,
+    timerEnded: false
+  };
+
+  // Обработчики таймера по умолчанию
+  const defaultTimerHandlers = {
+    startTimer: () => {},
+    endTimer: () => {},
+    resetTimer: () => {}
+  };
+
+  // Состояние ответа по умолчанию
+  const defaultAnswerState = {
+    showAnswer: false
+  };
+
+  // Обработчики ответа по умолчанию
+  const defaultAnswerHandlers = {
+    showAnswer: () => {},
+    hideAnswer: () => {}
+  };
+
+  const ModalContent = useMemo(() => {
+    if (isBlockUsed) {
+      return (
+        <WarningMessage
+          onTryAgain={onBlockRetry}
+          onContinue={onModalClose}
+          message="Этот блок уже использован. Хотите попробовать ещё раз?"
+        />
+      );
+    }
+    return <div>Модальное окно активно, но контент не определён.</div>;
+  }, [isBlockUsed, onBlockRetry, onModalClose]);
+
+  if (!modalState.modal) {
     return null;
   }
 
   return (
-    <>
-      <ConfettiAnimation isRunning={modalState.confetti} />
-
-      {selectedBlock && (
-        <Modal
-          block={selectedBlock}
-          categoryName={selectedCategory?.name ?? 'Без категории'}
-          onClose={onModalClose}
-          selectedMode={selectedMode ?? 1}
-          onSelectCategory={onSelectCategory}
-          isBlockUsed={isBlockUsed}
+    <Modal
+      block={selectedBlock}
+      categoryName={selectedCategory?.name ?? 'Без категории'}
+      onClose={() => hideModal('modal')}
+      modeComponent={() => <div />} // Пустой компонент по умолчанию
+      timerState={defaultTimerState}
+      timerHandlers={defaultTimerHandlers}
+      answerState={defaultAnswerState}
+      answerHandlers={defaultAnswerHandlers}
+      onSelectCategory={onSelectCategory}
+      isBlockUsed={isBlockUsed}
+      warningMessage={
+        <WarningMessage
           onTryAgain={onBlockRetry}
           onContinue={onModalClose}
+          message="Этот блок уже использован. Хотите попробовать ещё раз?"
         />
-      )}
-
-      {modalState.menu && (
-        <MenuModal
-          showSettings={() => showModal('settings')}
-          showMainMenu={onMainMenu}
-          onNewGame={onNewGame}
-          isVisible={modalState.menu}
-          closeMenuModal={() => hideModal('menu')}
-        />
-      )}
-
-      {modalState.settings && <Settings onClose={() => hideModal('settings')} />}
-
-      {modalState.endMessage && currentQuizId && (
-        <EndMessage
-          currentQuizId={currentQuizId}
-          setQuizStates={setQuizStates}
-          onNewGame={onNewGame}
-          onMainMenu={onMainMenu}
-        />
-      )}
-    </>
+      }
+    >
+      {ModalContent}
+    </Modal>
   );
 };
 

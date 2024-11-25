@@ -1,25 +1,35 @@
 // src/components/common/ModalManager/useModal.ts
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { useModal as useModalContext } from '../../../context/ModalContext';
 
 interface ModalState {
+  modal: boolean;
   settings: boolean;
   menu: boolean;
   endMessage: boolean;
   confetti: boolean;
 }
 
+type ModalType = 'modal' | 'settings' | 'menu' | 'endMessage';
+
 interface ModalAPI {
   modalState: ModalState;
-  showModal: (modalType: 'settings' | 'menu' | 'endMessage') => void;
-  hideModal: (modalType: 'settings' | 'menu' | 'endMessage') => void;
+  showModal: (modalType: ModalType) => void;
+  hideModal: (modalType: ModalType) => void;
   closeSettings: () => void;
   closeMenu: () => void;
 }
 
 export function useModal(): ModalAPI {
+  const [modalState, setModalState] = useState<ModalState>({
+    modal: false,
+    settings: false,
+    menu: false,
+    endMessage: false,
+    confetti: false,
+  });
+
   const {
-    state,
     openSettings,
     closeSettings,
     openMenu,
@@ -27,44 +37,56 @@ export function useModal(): ModalAPI {
     showEndMessage,
     hideEndMessage,
     startConfetti,
-    stopConfetti
+    stopConfetti,
   } = useModalContext();
 
-  const showModal = useCallback((modalType: 'settings' | 'menu' | 'endMessage') => {
-    switch (modalType) {
-      case 'settings':
-        openSettings();
-        break;
-      case 'menu':
-        openMenu();
-        break;
-      case 'endMessage':
-        showEndMessage();
-        startConfetti();
-        break;
-    }
-  }, [openSettings, openMenu, showEndMessage, startConfetti]);
+  const showModal = useCallback(
+    (modalType: ModalType) => {
+      switch (modalType) {
+        case 'modal':
+          setModalState((prev) => ({ ...prev, modal: true }));
+          break;
+        case 'settings':
+          openSettings();
+          break;
+        case 'menu':
+          openMenu();
+          break;
+        case 'endMessage':
+          showEndMessage();
+          startConfetti();
+          break;
+      }
+    },
+    [openSettings, openMenu, showEndMessage, startConfetti]
+  );
 
-  const hideModal = useCallback((modalType: 'settings' | 'menu' | 'endMessage') => {
-    switch (modalType) {
-      case 'settings':
-        closeSettings();
-        break;
-      case 'menu':
-        closeMenu();
-        break;
-      case 'endMessage':
-        hideEndMessage();
-        stopConfetti();
-        break;
-    }
-  }, [closeSettings, closeMenu, hideEndMessage, stopConfetti]);
+  const hideModal = useCallback(
+    (modalType: ModalType) => {
+      switch (modalType) {
+        case 'modal':
+          setModalState((prev) => ({ ...prev, modal: false }));
+          break;
+        case 'settings':
+          closeSettings();
+          break;
+        case 'menu':
+          closeMenu();
+          break;
+        case 'endMessage':
+          hideEndMessage();
+          stopConfetti();
+          break;
+      }
+    },
+    [closeSettings, closeMenu, hideEndMessage, stopConfetti]
+  );
 
   return {
     showModal,
     hideModal,
-    modalState: state,
+    modalState,
     closeSettings,
-    closeMenu
+    closeMenu,
   };
 }

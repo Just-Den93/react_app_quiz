@@ -1,83 +1,49 @@
-import React, { useState, useEffect } from 'react';
-import QAMode from '../../features/Game/GameModes/QAMode/QAMode';
-import SelectionMode from '../../features/Game/GameModes/SelectionMode/SelectionMode';
-import WarningMessage from '../../features/Game/Messages/WarningMessage/WarningMessage';
+import React from 'react';
 import styles from './Modal.module.css';
-
-interface Block {
-  id: number;
-  question: string;
-  text: string;
-  categoryId?: string;
-  'correct answer'?: string;
-  options?: string[];
-}
+import type { QuizBlock } from '../../../types/quiz.types';
+import type { GameModeProps, GameBlock } from '../../../types/gameModes.types';
 
 interface ModalProps {
-  block: Block | null;
+  block: QuizBlock | null;
   categoryName: string;
   onClose: () => void;
-  selectedMode: number;
+  modeComponent: React.ComponentType<GameModeProps>;
+  timerState: { timerStarted: boolean; timerEnded: boolean };
+  timerHandlers: { startTimer: () => void; endTimer: () => void; resetTimer: () => void };
+  answerState: { showAnswer: boolean };
+  answerHandlers: { showAnswer: () => void; hideAnswer: () => void };
   onSelectCategory: (categoryId: string, blockId: number) => void;
   isBlockUsed: boolean;
-  onTryAgain: () => void;
-  onContinue: () => void;
+  warningMessage: React.ReactNode;
+  children?: React.ReactNode;
 }
-
-interface ModeComponentsType {
-  [key: number]: React.ComponentType<any>;
-}
-
-const modeComponents: ModeComponentsType = {
-  1: QAMode,
-  2: SelectionMode,
-};
 
 const Modal: React.FC<ModalProps> = ({
   block,
   categoryName,
   onClose,
-  selectedMode,
+  modeComponent: ModeComponent,
+  timerState,
+  timerHandlers,
+  answerState,
+  answerHandlers,
   onSelectCategory,
   isBlockUsed,
-  onTryAgain,
-  onContinue,
+  warningMessage,
+  children, // Добавляем children
 }) => {
-  const ModeComponent = modeComponents[selectedMode];
-
-  const [timerStarted, setTimerStarted] = useState<boolean>(false);
-  const [timerEnded, setTimerEnded] = useState<boolean>(false);
-  const [showAnswer, setShowAnswer] = useState<boolean>(false);
-
-  useEffect(() => {
-    resetModalState(setTimerStarted, setShowAnswer, setTimerEnded);
-  }, [block]);
-
-  const resetModalState = (
-    setTimerStarted: React.Dispatch<React.SetStateAction<boolean>>,
-    setShowAnswer: React.Dispatch<React.SetStateAction<boolean>>,
-    setTimerEnded: React.Dispatch<React.SetStateAction<boolean>>
-  ): void => {
-    setTimerStarted(false);
-    setShowAnswer(false);
-    setTimerEnded(false);
-  };
-
-  const handleModalActions = {
-    setTimerEnded: (setTimerEnded: React.Dispatch<React.SetStateAction<boolean>>): void => {
-      setTimerEnded(true);
-    },
-    setShowAnswer: (setShowAnswer: React.Dispatch<React.SetStateAction<boolean>>): void => {
-      setShowAnswer(true);
-    },
-    forceStop: (setTimerEnded: React.Dispatch<React.SetStateAction<boolean>>): void => {
-      setTimerEnded(true);
-    },
-  };
-
   if (!block) {
     return null;
   }
+
+  const gameBlock: GameBlock = {
+    id: block.id,
+    question: block.question,
+    text: block.text,
+    options: block.options ?? [],
+    categoryId: block.categoryId ?? '',
+    'correct answer': block['correct answer'] ?? 'Ответ не указан',
+  };
 
   return (
     <div className={`${styles.modal} ${styles.show}`} onClick={onClose}>
@@ -85,22 +51,25 @@ const Modal: React.FC<ModalProps> = ({
         <span className={styles.closeButton} onClick={onClose}>
           &times;
         </span>
-
-        {isBlockUsed ? (
-          <WarningMessage onTryAgain={onTryAgain} onContinue={onContinue} />
+        {children ? ( // Если есть children, рендерим их
+          children
+        ) : isBlockUsed ? (
+          warningMessage
         ) : (
           ModeComponent && (
             <ModeComponent
-              block={block}
+              block={gameBlock}
               categoryName={categoryName}
-              showAnswer={showAnswer}
-              setTimerStarted={setTimerStarted}
-              timerStarted={timerStarted}
-              timerEnded={timerEnded}
-              handleTimerEnd={() => handleModalActions.setTimerEnded(setTimerEnded)}
-              handleShowAnswer={() => handleModalActions.setShowAnswer(setShowAnswer)}
-              handleSelectCategory={() => onSelectCategory(block.categoryId!, block.id)}
-              handleForceStop={() => handleModalActions.forceStop(setTimerEnded)}
+              showAnswer={answerState?.showAnswer || false}
+              setTimerStarted={timerHandlers?.startTimer || (() => {})}
+              timerStarted={timerState?.timerStarted || false}
+              timerEnded={timerState?.timerEnded || false}
+              handleTimerEnd={timerHandlers?.endTimer || (() => {})}
+              handleShowAnswer={answerHandlers?.showAnswer || (() => {})}
+              handleSelectCategory={() =>
+                onSelectCategory?.(gameBlock.categoryId, gameBlock.id)
+              }
+              handleForceStop={timerHandlers?.resetTimer || (() => {})}
             />
           )
         )}
@@ -109,4 +78,4 @@ const Modal: React.FC<ModalProps> = ({
   );
 };
 
-export default Modal;
+export default React.memo(Modal);

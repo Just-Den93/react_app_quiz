@@ -1,92 +1,102 @@
-src\assets
-src\components
-src\components\App
-src\components\App\App.module.css
-src\components\App\App.tsx
-src\components\App\appUtils.ts
-src\components\common
-src\components\common\Button
-src\components\common\Button\Button.module.css
-src\components\common\Button\Button.tsx
-src\components\common\Button\ButtonTypes.ts
-src\components\common\MenuModal
-src\components\common\MenuModal\MenuModal.module.css
-src\components\common\MenuModal\MenuModal.test.js
-src\components\common\MenuModal\MenuModal.tsx
-src\components\common\MenuModal\menuModalUtils.ts
-src\components\common\Modal
-src\components\common\Modal\Modal.module.css
-src\components\common\Modal\Modal.tsx
-src\components\common\Modal\modalUtils.ts
-src\components\common\ModalManager
-src\components\common\ModalManager\ModalManager.tsx
-src\components\common\ModalManager\useModal.ts
-src\components\common\Timer
-src\components\common\Timer\Timer.module.css
-src\components\common\Timer\Timer.test.tsx
-src\components\common\Timer\Timer.tsx
-src\components\common\Timer\timerUtils.ts
-src\components\features
-src\components\features\Game
-src\components\features\Game\Animation
-src\components\features\Game\Animation\canvas-confetti.d.ts
-src\components\features\Game\Animation\ConfettiAnimation.tsx
-src\components\features\Game\GameModes
-src\components\features\Game\Messages
-src\components\features\Game\Messages\EndMessage
-src\components\features\Game\Messages\EndMessage\EndMessage.module.css
-src\components\features\Game\Messages\EndMessage\EndMessage.tsx
-src\components\features\Game\Messages\EndMessage\EndMessageUtils.ts
-src\components\features\Game\Messages\WarningMessage
-src\components\features\Game\Messages\WarningMessage\WarningMessage.module.css
-src\components\features\Game\Messages\WarningMessage\WarningMessage.tsx
-src\components\features\Game\Messages\WarningMessage\warningMessageConstants.ts
-src\components\features\Game\Settings
-src\components\features\Game\Settings\Settings.jsx
-src\components\features\Game\Settings\Settings.module.css
-src\components\features\Quiz
-src\components\features\Quiz\CategoryRow
-src\components\features\Quiz\CategoryRow\CategoryRow.module.css
-src\components\features\Quiz\CategoryRow\CategoryRow.tsx
-src\components\features\Quiz\CategoryRow\CategoryRowUtils.ts
-src\components\features\Quiz\Item
-src\components\features\Quiz\Item\Item.module.css
-src\components\features\Quiz\Item\Item.tsx
-src\components\features\Quiz\Item\itemUtils.ts
-src\components\features\Quiz\QuizCard
-src\components\features\Quiz\QuizCard\QuizCard.module.css
-src\components\features\Quiz\QuizCard\QuizCard.tsx
-src\components\features\Quiz\QuizPage
-src\components\features\Quiz\QuizPage\hooks
-src\components\features\Quiz\QuizPage\hooks\useQuizGameLogic.ts
-src\components\features\Quiz\QuizPage\hooks\useQuizIdentifier.ts
-src\components\features\Quiz\QuizPage\QuizPage.module.css
-src\components\features\Quiz\QuizPage\QuizPage.tsx
-src\components\features\Quiz\QuizPage\quizPageUtils.ts
-src\components\layout
-src\components\layout\ContentContainer
-src\components\layout\ContentContainer\ContentContainer.module.css
-src\components\layout\ContentContainer\ContentContainer.tsx
-src\components\layout\ContentContainer\contentContainerUtils.tsx
-src\components\layout\Sidebar
-src\components\layout\Sidebar\Sidebar.jsx
-src\components\layout\Sidebar\Sidebar.module.css
-src\context
-src\context\ModalContext.tsx
-src\context\QuizContext.tsx
-src\data
-src\data\mode1.json
-src\data\mode2.json
-src\types
-src\types\button.types.ts
-src\types\declarations.d.ts
-src\types\quiz.types.ts
-src\utils
-src\utils\errorHandling.ts
-src\utils\loadData.ts
-src\utils\loadJsonData.ts
-src\index.css
-src\index.tsx
-src\react-app-env.d.ts
-src\reportWebVitals.ts
-src\setupTests.ts
+src/
+├── assets/
+├── components/
+│   ├── App/
+│   │   ├── App.module.css
+│   │   ├── App.tsx
+│   │   └── appUtils.ts
+│   ├── common/
+│   │   ├── Button/
+│   │   │   ├── Button.module.css
+│   │   │   ├── Button.tsx
+│   │   │   └── ButtonTypes.ts
+│   │   ├── MenuModal/
+│   │   │   ├── MenuModal.module.css
+│   │   │   ├── MenuModal.test.js
+│   │   │   ├── MenuModal.tsx
+│   │   │   └── menuModalUtils.ts
+│   │   ├── Modal/
+│   │   │   ├── Modal.module.css
+│   │   │   ├── Modal.tsx
+│   │   │   └── modalUtils.ts
+│   │   ├── ModalManager/
+│   │   │   ├── ModalManager.tsx
+│   │   │   └── useModal.ts
+│   │   └── Timer/
+│   │       ├── Timer.module.css
+│   │       ├── Timer.test.tsx
+│   │       ├── Timer.tsx
+│   │       └── timerUtils.ts
+│   ├── features/
+│   │   ├── Game/
+│   │   │   ├── Animation/
+│   │   │   │   ├── canvas-confetti.d.ts
+│   │   │   │   └── ConfettiAnimation.tsx
+│   │   │   ├── GameModes/
+│   │   │   │   ├── QAMode/
+│   │   │   │   │   ├── QAMode.jsx
+│   │   │   │   │   ├── QAMode.module.css
+│   │   │   │   │   └── QAModeUtils.js
+│   │   │   │   └── SelectionMode/
+│   │   │   │       ├── SelectionMode.module.css
+│   │   │   │       ├── SelectionMode.tsx
+│   │   │   │       └── SelectionModeUtils.tsx
+│   │   │   ├── Messages/
+│   │   │   │   ├── EndMessage/
+│   │   │   │   │   ├── EndMessage.module.css
+│   │   │   │   │   ├── EndMessage.tsx
+│   │   │   │   │   └── EndMessageUtils.ts
+│   │   │   │   └── WarningMessage/
+│   │   │   │       ├── WarningMessage.module.css
+│   │   │   │       ├── WarningMessage.tsx
+│   │   │   │       └── warningMessageConstants.ts
+│   │   │   └── Settings/
+│   │   │       ├── Settings.jsx
+│   │   │       └── Settings.module.css
+│   │   └── Quiz/
+│   │       ├── CategoryRow/
+│   │       │   ├── CategoryRow.module.css
+│   │       │   ├── CategoryRow.tsx
+│   │       │   └── CategoryRowUtils.ts
+│   │       ├── Item/
+│   │       │   ├── Item.module.css
+│   │       │   ├── Item.tsx
+│   │       │   └── itemUtils.ts
+│   │       ├── QuizCard/
+│   │       │   ├── QuizCard.module.css
+│   │       │   └── QuizCard.tsx
+│   │       └── QuizPage/
+│   │           ├── hooks/
+│   │           │   ├── useKeyboardEvents.ts
+│   │           │   ├── useQuizGameLogic.ts
+│   │           │   └── useQuizIdentifier.ts
+│   │           ├── QuizPage.module.css
+│   │           ├── QuizPage.tsx
+│   │           └── quizPageUtils.ts
+│   └── layout/
+│       ├── ContentContainer/
+│       │   ├── ContentContainer.module.css
+│       │   ├── ContentContainer.tsx
+│       │   └── contentContainerUtils.tsx
+│       └── Sidebar/
+│           ├── Sidebar.jsx
+│           └── Sidebar.module.css
+├── context/
+│   ├── ModalContext.tsx
+│   └── QuizContext.tsx
+├── data/
+│   ├── mode1.json
+│   └── mode2.json
+├── types/
+│   ├── button.types.ts
+│   ├── declarations.d.ts
+│   └── quiz.types.ts
+├── utils/
+│   ├── errorHandling.ts
+│   ├── loadData.ts
+│   └── loadJsonData.ts
+├── index.css
+├── index.tsx
+├── react-app-env.d.ts
+├── reportWebVitals.ts
+└── setupTests.ts
