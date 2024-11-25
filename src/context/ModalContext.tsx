@@ -3,6 +3,8 @@ import React, { createContext, useContext, useReducer, ReactNode, useCallback } 
 
 interface ModalContextValue {
   state: ModalState;
+  openModal: () => void;
+  closeModal: () => void;  
   openSettings: () => void;
   closeSettings: () => void;
   openMenu: () => void;
@@ -15,6 +17,7 @@ interface ModalContextValue {
 }
 
 interface ModalState {
+  modal: boolean;
   settings: boolean;
   menu: boolean;
   endMessage: boolean;
@@ -22,6 +25,8 @@ interface ModalState {
 }
 
 type ModalAction =
+  | { type: 'OPEN_MODAL' }
+  | { type: 'CLOSE_MODAL' }  
   | { type: 'OPEN_SETTINGS' }
   | { type: 'CLOSE_SETTINGS' }
   | { type: 'OPEN_MENU' }
@@ -33,6 +38,7 @@ type ModalAction =
   | { type: 'RESET_STATE' };
 
 const initialState: ModalState = {
+  modal: false,
   settings: false,
   menu: false,
   endMessage: false,
@@ -42,6 +48,8 @@ const initialState: ModalState = {
 // Создаем контекст с начальным значением
 const ModalContext = createContext<ModalContextValue>({
   state: initialState,
+  openModal: () => {},
+  closeModal: () => {},  
   openSettings: () => {},
   closeSettings: () => {},
   openMenu: () => {},
@@ -55,6 +63,10 @@ const ModalContext = createContext<ModalContextValue>({
 
 function modalReducer(state: ModalState, action: ModalAction): ModalState {
   switch (action.type) {
+    case 'OPEN_MODAL':
+      return { ...state, modal: true };
+    case 'CLOSE_MODAL':
+      return { ...state, modal: false };
     case 'OPEN_SETTINGS':
       return { ...state, settings: true };
     case 'CLOSE_SETTINGS':
@@ -89,6 +101,8 @@ export function useModal() {
 export function ModalProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(modalReducer, initialState);
 
+  const openModal = useCallback(() => dispatch({ type: 'OPEN_MODAL' }), []);
+  const closeModal = useCallback(() => dispatch({ type: 'CLOSE_MODAL' }), []);
   const openSettings = useCallback(() => dispatch({ type: 'OPEN_SETTINGS' }), []);
   const closeSettings = useCallback(() => dispatch({ type: 'CLOSE_SETTINGS' }), []);
   const openMenu = useCallback(() => dispatch({ type: 'OPEN_MENU' }), []);
@@ -101,6 +115,8 @@ export function ModalProvider({ children }: { children: ReactNode }) {
 
   const value = {
     state,
+    openModal,
+    closeModal,
     openSettings,
     closeSettings,
     openMenu,

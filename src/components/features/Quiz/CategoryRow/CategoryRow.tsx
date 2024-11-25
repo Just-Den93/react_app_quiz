@@ -6,7 +6,8 @@ import { handleBlockSelection } from './CategoryRowUtils';
 
 interface CategoryRowProps {
   category: Category;
-  onBlockSelect: (block: QuizBlock, category: Category) => void;
+  // Изменим тип onBlockSelect
+  onBlockSelect: (block: QuizBlock & { categoryId: string }) => void;
   usedBlocks: number[];
 }
 
@@ -15,15 +16,18 @@ const CategoryRow: React.FC<CategoryRowProps> = ({ category, onBlockSelect, used
     <div className={styles.categoryRow}>
       <div className={styles.categoryName}>{category.name}</div>
       <div className={styles.items}>
-        {category.blocks.map((block) => (
-          <Item
-            key={`${category.id}-${block.id}`}
-            block={block}
-            categoryId={category.id}
-            onBlockSelect={(blockData: QuizBlock) => handleBlockSelection(blockData, category, onBlockSelect)}
-            isUsed={usedBlocks.includes(block.id)}  // Передаем проп isUsed
-          />
-        ))}
+        {category.blocks.map((block) => {
+          const blockWithCategory = { ...block, categoryId: category.id };
+          return (
+            <Item
+              key={`${category.id}-${block.id}`}
+              block={blockWithCategory}
+              categoryId={category.id}
+              onBlockSelect={onBlockSelect}
+              isUsed={usedBlocks.includes(block.id)}
+            />
+          );
+        })}
       </div>
     </div>
   );

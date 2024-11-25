@@ -5,7 +5,7 @@ import CategoryRow from '../../features/Quiz/CategoryRow/CategoryRow';
 
 interface ContentContainerProps {
   data: Category[];
-  onBlockSelect: (block: QuizBlock, category: Category) => void;
+  onBlockSelect: (block: QuizBlock & { categoryId: string }) => void; // Обновляем тип
   usedBlocks: { [key: string]: number[] };
 }
 

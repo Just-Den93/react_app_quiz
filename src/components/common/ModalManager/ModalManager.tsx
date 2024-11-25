@@ -1,5 +1,7 @@
 import React, { useMemo } from 'react';
 import { useModal } from './useModal';
+import { gameModeFactory } from './factories/gameModeFactory';
+import { useQuizContext } from '../../../context/QuizContext';
 import WarningMessage from '../../features/Game/Messages/WarningMessage/WarningMessage';
 import Modal from '../Modal/Modal';
 import { QuizBlock, Category } from '../../../types/quiz.types';
@@ -24,45 +26,38 @@ export const ModalManager: React.FC<ModalManagerProps> = ({
   onSelectCategory = () => {},
 }) => {
   const { modalState, hideModal } = useModal();
+  const { selectedMode } = useQuizContext();
+  const ModeComponent = gameModeFactory.getMode(selectedMode);
 
-  // Состояния таймера по умолчанию
+  console.log('Mode Component:', ModeComponent, 'Selected Mode:', selectedMode);
+
+  // Убираем useMemo и меняем логику рендеринга
   const defaultTimerState = {
     timerStarted: false,
     timerEnded: false
   };
 
-  // Обработчики таймера по умолчанию
   const defaultTimerHandlers = {
     startTimer: () => {},
     endTimer: () => {},
     resetTimer: () => {}
   };
 
-  // Состояние ответа по умолчанию
   const defaultAnswerState = {
     showAnswer: false
   };
 
-  // Обработчики ответа по умолчанию
   const defaultAnswerHandlers = {
     showAnswer: () => {},
     hideAnswer: () => {}
   };
 
-  const ModalContent = useMemo(() => {
-    if (isBlockUsed) {
-      return (
-        <WarningMessage
-          onTryAgain={onBlockRetry}
-          onContinue={onModalClose}
-          message="Этот блок уже использован. Хотите попробовать ещё раз?"
-        />
-      );
-    }
-    return <div>Модальное окно активно, но контент не определён.</div>;
-  }, [isBlockUsed, onBlockRetry, onModalClose]);
-
   if (!modalState.modal) {
+    return null;
+  }
+
+  // Добавляем дополнительную проверку на блок и категорию
+  if (!selectedBlock || !selectedCategory) {
     return null;
   }
 
@@ -71,7 +66,7 @@ export const ModalManager: React.FC<ModalManagerProps> = ({
       block={selectedBlock}
       categoryName={selectedCategory?.name ?? 'Без категории'}
       onClose={() => hideModal('modal')}
-      modeComponent={() => <div />} // Пустой компонент по умолчанию
+      modeComponent={ModeComponent || (() => <div>Режим не определён</div>)}
       timerState={defaultTimerState}
       timerHandlers={defaultTimerHandlers}
       answerState={defaultAnswerState}
@@ -85,9 +80,7 @@ export const ModalManager: React.FC<ModalManagerProps> = ({
           message="Этот блок уже использован. Хотите попробовать ещё раз?"
         />
       }
-    >
-      {ModalContent}
-    </Modal>
+    />
   );
 };
 
