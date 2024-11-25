@@ -4,6 +4,7 @@ import { useQuizContext } from '../../../../context/QuizContext';
 import { useQuizGameLogic } from './hooks/useQuizGameLogic';
 import { useQuizIdentifier } from './hooks/useQuizIdentifier';
 import { useKeyboardEvents } from './hooks/useKeyboardEvents';
+import  MenuModal  from '../../../common/MenuModal/MenuModal';
 import { ModalManager } from '../../../common/ModalManager/ModalManager';
 import ContentContainer from '../../../layout/ContentContainer/ContentContainer';
 import styles from './QuizPage.module.css';
@@ -82,6 +83,8 @@ const QuizPage: React.FC = () => {
         onBlockSelect={handleBlockSelectWrapper}
         usedBlocks={currentQuizState.usedBlocks}
       />
+
+<MenuModal/>
 
       <ModalManager
         selectedBlock={gameState.selectedBlock}
