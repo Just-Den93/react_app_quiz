@@ -86,6 +86,10 @@ const QuizPage: React.FC = () => {
     setMenuOpen(false);
   }}
   onSettings={() => setMenuOpen(false)}
+  onTimer={() => {
+	// Handle timer click
+	setMenuOpen(false);
+ }}
 />
       
       <main id="page-wrap">

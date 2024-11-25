@@ -2,7 +2,6 @@ import React from 'react';
 import { slide as Menu } from 'react-burger-menu';
 import { Button, BUTTON_VARIANTS } from '../Button/Button';
 import styles from './BurgerMenu.module.css';
-import classNames from 'classnames';
 
 interface BurgerMenuProps {
     isOpen: boolean;
@@ -11,19 +10,21 @@ interface BurgerMenuProps {
     onContinue: () => void;
     onMainMenu: () => void;
     onSettings: () => void;
+    onTimer: () => void;
 }
 
 const BurgerMenu: React.FC<BurgerMenuProps> = ({
     isOpen,
     onStateChange,
     onNewGame,
-    onContinue,
+    onContinue, 
     onMainMenu,
-    onSettings
+    onSettings,
+    onTimer
 }) => {
     const menuStyles = {
         bmBurgerButton: {
-            position: 'fixed' as const,
+            position: 'fixed',
             width: '36px',
             height: '30px',
             left: '36px',
@@ -38,7 +39,7 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({
             background: '#03564a'
         },
         bmCrossButton: {
-            height: '24px',
+            height: '24px', 
             width: '24px',
             right: '24px',
             top: '24px',
@@ -48,9 +49,9 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({
             background: '#03564a'
         },
         bmMenuWrap: {
-            position: 'fixed' as const,
+            position: 'fixed',
             height: '100%',
-            width: '300px',
+            width: '300px', 
             top: '0',
             left: '0',
             zIndex: '1200'
@@ -61,7 +62,7 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({
             fontSize: '1.15em',
             height: '100%',
             display: 'flex',
-            flexDirection: 'column' as const,
+            flexDirection: 'column',
             overflow: 'hidden'
         },
         bmMorphShape: {
@@ -69,7 +70,7 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({
         },
         bmItemList: {
             display: 'flex',
-            flexDirection: 'column' as const,
+            flexDirection: 'column',
             height: '100%',
             margin: '0',
             padding: '0'
@@ -81,7 +82,7 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({
         },
         bmOverlay: {
             background: 'rgba(0, 0, 0, 0.7)',
-            position: 'fixed' as const,
+            position: 'fixed',
             top: '0',
             left: '0',
             right: '0',
@@ -98,13 +99,14 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({
 
     const bottomSection = {
         background: '#046d5f',
+		  padding: '1em 1rem 1rem',
         marginTop: 'auto',
         height: '50%',
-        width: '100%'
+        width: '100%' 
     };
 
     return (
-        <Menu
+        <Menu 
             isOpen={isOpen}
             onStateChange={onStateChange}
             styles={menuStyles}
@@ -114,35 +116,39 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({
             crossButtonClassName={styles.crossBtn}
         >
             <div style={topSection}>
-                <div className={styles.buttonItem}>
+                <div className={styles.buttonItem}> 
                     <Button
                         variant={BUTTON_VARIANTS.NEW_GAME}
                         onClick={onNewGame}
                     />
                 </div>
                 <div className={styles.buttonItem}>
-                    <Button
+                    <Button 
                         variant={BUTTON_VARIANTS.CONTINUE}
                         onClick={onContinue}
-                    />
+                    />  
                 </div>
                 <div className={styles.buttonItem}>
                     <Button
-                        variant={BUTTON_VARIANTS.MAIN_MENU}
+                        variant={BUTTON_VARIANTS.MAIN_MENU} 
                         onClick={onMainMenu}
                     />
                 </div>
-                <div className={styles.buttonItem}>
-                    <Button
+                <div className={styles.buttonItem}> 
+                    <Button 
                         variant={BUTTON_VARIANTS.SETTINGS}
-                        onClick={onSettings}
+                        onClick={onSettings} 
                     />
                 </div>
             </div>
-            <div 
-                style={bottomSection} 
-                className={styles.bottomSectionAnimated} 
-            />
+            <div style={bottomSection} className={styles.bottomSectionAnimated}>
+                <div className={styles.buttonItem}> 
+                    <Button
+                        variant={BUTTON_VARIANTS.TIMER}
+                        onClick={onTimer}
+                    />
+                </div>
+            </div>
         </Menu>
     );
 };
