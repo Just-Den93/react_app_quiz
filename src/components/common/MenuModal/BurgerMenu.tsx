@@ -16,22 +16,24 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({ isOpen, onStateChange }) => {
             height: '30px',
             left: '36px',
             top: '36px',
-            zIndex: '1100'
+            zIndex: '1100',
+            filter: 'saturate(2)'
         },
         bmBurgerBars: {
-            background: '#373a47'
+            background: '#03564a'
         },
         bmBurgerBarsHover: {
-            background: '#a90000'
+            background: '#03564a'
         },
         bmCrossButton: {
             height: '24px',
             width: '24px',
             right: '24px',
-            top: '24px'
+            top: '24px',
+            filter: 'saturate(2)'
         },
         bmCross: {
-            background: '#bdc3c7'
+            background: '#03564a'
         },
         bmMenuWrap: {
             position: 'fixed' as const,
@@ -42,12 +44,12 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({ isOpen, onStateChange }) => {
             zIndex: '1200'
         },
         bmMenu: {
-            background: '#373a47',
+            background: '#03564a',
             padding: '2.5em 1.5em 0',
             fontSize: '1.15em'
         },
         bmMorphShape: {
-            fill: '#373a47'
+            fill: '#03564a'
         },
         bmItemList: {
             color: '#b8b7ad',
@@ -89,32 +91,32 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({ isOpen, onStateChange }) => {
     };
 
     return (
-		<Menu
-		isOpen={isOpen}
-		onStateChange={onStateChange}
-		styles={menuStyles}
-		pageWrapId="page-wrap"
-		outerContainerId="outer-container"
-		width="300"
-		crossButtonClassName={styles.crossBtn}
-  >
-		<Button
-			 variant={BUTTON_VARIANTS.NEW_GAME}
-			 onClick={handleNewGame}
-		/>
-		<Button
-			 variant={BUTTON_VARIANTS.CONTINUE}
-			 onClick={handleContinue}
-		/>
-		<Button
-			 variant={BUTTON_VARIANTS.MAIN_MENU}
-			 onClick={handleMainMenu}
-		/>
-		<Button
-			 variant={BUTTON_VARIANTS.SETTINGS}
-			 onClick={handleSettings}
-		/>
-  </Menu>
+        <Menu
+            isOpen={isOpen}
+            onStateChange={onStateChange}
+            styles={menuStyles}
+            pageWrapId="page-wrap"
+            outerContainerId="outer-container"
+            width="300"
+            crossButtonClassName={styles.crossBtn}
+        >
+            <Button
+                variant={BUTTON_VARIANTS.NEW_GAME}
+                onClick={handleNewGame}
+            />
+            <Button
+                variant={BUTTON_VARIANTS.CONTINUE}
+                onClick={handleContinue}
+            />
+            <Button
+                variant={BUTTON_VARIANTS.MAIN_MENU}
+                onClick={handleMainMenu}
+            />
+            <Button
+                variant={BUTTON_VARIANTS.SETTINGS}
+                onClick={handleSettings}
+            />
+        </Menu>
     );
 };
 
