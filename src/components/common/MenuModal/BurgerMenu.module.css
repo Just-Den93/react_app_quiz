@@ -1,3 +1,46 @@
 .crossBtn {
   outline: none !important;
 }
+
+.buttonItem {
+  opacity: 0;
+  transform: translateX(-20px);
+  animation: slideIn 0.3s ease forwards;
+}
+
+.buttonItem:nth-child(1) {
+  animation-delay: 0.1s;
+}
+
+.buttonItem:nth-child(2) {
+  animation-delay: 0.3s;
+}
+
+.buttonItem:nth-child(3) {
+  animation-delay: 0.5s;
+}
+
+.buttonItem:nth-child(4) {
+  animation-delay: 0.7s;
+}
+
+@keyframes slideIn {
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.bottomSectionAnimated {
+  opacity: 0;
+  transform: translateY(100%);
+  animation: slideUp 0.5s ease-out forwards;
+  animation-delay: 0.9s;
+}
+
+@keyframes slideUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

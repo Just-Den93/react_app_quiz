@@ -2,6 +2,7 @@ import React from 'react';
 import { slide as Menu } from 'react-burger-menu';
 import { Button, BUTTON_VARIANTS } from '../Button/Button';
 import styles from './BurgerMenu.module.css';
+import classNames from 'classnames';
 
 interface BurgerMenuProps {
     isOpen: boolean;
@@ -60,7 +61,8 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({
             fontSize: '1.15em',
             height: '100%',
             display: 'flex',
-            flexDirection: 'column' as const
+            flexDirection: 'column' as const,
+            overflow: 'hidden'
         },
         bmMorphShape: {
             fill: '#03564a'
@@ -91,8 +93,7 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({
     const topSection = {
         padding: '4em 1rem 1rem',
         display: 'flex',
-        flexDirection: 'column' as const,
-      //   gap: '1rem'
+        flexDirection: 'column' as const
     };
 
     const bottomSection = {
@@ -113,24 +114,35 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({
             crossButtonClassName={styles.crossBtn}
         >
             <div style={topSection}>
-                <Button
-                    variant={BUTTON_VARIANTS.NEW_GAME}
-                    onClick={onNewGame}
-                />
-                <Button
-                    variant={BUTTON_VARIANTS.CONTINUE}
-                    onClick={onContinue}
-                />
-                <Button
-                    variant={BUTTON_VARIANTS.MAIN_MENU}
-                    onClick={onMainMenu}
-                />
-                <Button
-                    variant={BUTTON_VARIANTS.SETTINGS}
-                    onClick={onSettings}
-                />
+                <div className={styles.buttonItem}>
+                    <Button
+                        variant={BUTTON_VARIANTS.NEW_GAME}
+                        onClick={onNewGame}
+                    />
+                </div>
+                <div className={styles.buttonItem}>
+                    <Button
+                        variant={BUTTON_VARIANTS.CONTINUE}
+                        onClick={onContinue}
+                    />
+                </div>
+                <div className={styles.buttonItem}>
+                    <Button
+                        variant={BUTTON_VARIANTS.MAIN_MENU}
+                        onClick={onMainMenu}
+                    />
+                </div>
+                <div className={styles.buttonItem}>
+                    <Button
+                        variant={BUTTON_VARIANTS.SETTINGS}
+                        onClick={onSettings}
+                    />
+                </div>
             </div>
-            <div style={bottomSection} />
+            <div 
+                style={bottomSection} 
+                className={styles.bottomSectionAnimated} 
+            />
         </Menu>
     );
 };
