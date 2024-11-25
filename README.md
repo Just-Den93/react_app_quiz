@@ -2,6 +2,9 @@ src/
 ├── assets/
 ├── components/
 │   ├── App/
+│   │   ├── hooks/
+│   │   │   ├── useQuizData.ts
+│   │   │   └── useQuizState.ts
 │   │   ├── App.module.css
 │   │   ├── App.tsx
 │   │   └── appUtils.ts
@@ -11,20 +14,19 @@ src/
 │   │   │   ├── Button.tsx
 │   │   │   └── ButtonTypes.ts
 │   │   ├── MenuModal/
-│   │   │   ├── MenuModal.module.css
-│   │   │   ├── MenuModal.test.js
-│   │   │   ├── MenuModal.tsx
-│   │   │   └── menuModalUtils.ts
+│   │   │   ├── BurgerMenu.module.css
+│   │   │   └── BurgerMenu.tsx
 │   │   ├── Modal/
 │   │   │   ├── Modal.module.css
 │   │   │   ├── Modal.tsx
 │   │   │   └── modalUtils.ts
 │   │   ├── ModalManager/
+│   │   │   ├── factories/
+│   │   │   │   └── gameModeFactory.ts
 │   │   │   ├── ModalManager.tsx
 │   │   │   └── useModal.ts
 │   │   └── Timer/
 │   │       ├── Timer.module.css
-│   │       ├── Timer.test.tsx
 │   │       ├── Timer.tsx
 │   │       └── timerUtils.ts
 │   ├── features/
@@ -34,9 +36,9 @@ src/
 │   │   │   │   └── ConfettiAnimation.tsx
 │   │   │   ├── GameModes/
 │   │   │   │   ├── QAMode/
-│   │   │   │   │   ├── QAMode.jsx
 │   │   │   │   │   ├── QAMode.module.css
-│   │   │   │   │   └── QAModeUtils.js
+│   │   │   │   │   ├── QAMode.tsx
+│   │   │   │   │   └── QAModeUtils.ts
 │   │   │   │   └── SelectionMode/
 │   │   │   │       ├── SelectionMode.module.css
 │   │   │   │       ├── SelectionMode.tsx
@@ -67,6 +69,8 @@ src/
 │   │       │   └── QuizCard.tsx
 │   │       └── QuizPage/
 │   │           ├── hooks/
+│   │           │   ├── useDataValidation.ts
+│   │           │   ├── useErrorHandling.ts
 │   │           │   ├── useKeyboardEvents.ts
 │   │           │   ├── useQuizGameLogic.ts
 │   │           │   └── useQuizIdentifier.ts
@@ -90,6 +94,7 @@ src/
 ├── types/
 │   ├── button.types.ts
 │   ├── declarations.d.ts
+│   ├── gameModes.types.ts
 │   └── quiz.types.ts
 ├── utils/
 │   ├── errorHandling.ts
