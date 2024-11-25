@@ -3,7 +3,6 @@ import { useQuizContext } from '../../../../context/QuizContext';
 import { useQuizGameLogic } from './hooks/useQuizGameLogic';
 import { useQuizIdentifier } from './hooks/useQuizIdentifier';
 import { useKeyboardEvents } from './hooks/useKeyboardEvents';
-import  MenuModal  from '../../../common/MenuModal/MenuModal';
 import { ModalManager } from '../../../common/ModalManager/ModalManager';
 import ContentContainer from '../../../layout/ContentContainer/ContentContainer';
 import BurgerMenu from '../../../common/MenuModal/BurgerMenu'
@@ -110,20 +109,6 @@ const QuizPage: React.FC = () => {
           usedBlocks={currentQuizState.usedBlocks}
         />
 
-<<<<<<< HEAD
-<MenuModal/>
-
-      <ModalManager
-        selectedBlock={gameState.selectedBlock}
-        selectedCategory={gameState.selectedCategory}
-        isBlockUsed={gameState.isBlockUsed}
-        onModalClose={handleModalClose}
-        onBlockRetry={handleBlockRetry}
-        onSelectCategory={handleSelectCategory}
-        onNewGame={handleNewGame}
-        onMainMenu={handleMainMenu}
-      />
-=======
         <ModalManager
           selectedBlock={gameState.selectedBlock}
           selectedCategory={gameState.selectedCategory}
@@ -135,7 +120,6 @@ const QuizPage: React.FC = () => {
           onMainMenu={handleMainMenu}
         />
       </main>
->>>>>>> 180a94790ce5de6b51aa3ec60f8d40eda98f2be8
     </div>
   );
 };
