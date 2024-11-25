@@ -1,16 +1,18 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useQuizContext } from '../../../../context/QuizContext';
 import { useQuizGameLogic } from './hooks/useQuizGameLogic';
 import { useQuizIdentifier } from './hooks/useQuizIdentifier';
 import { useKeyboardEvents } from './hooks/useKeyboardEvents';
 import { ModalManager } from '../../../common/ModalManager/ModalManager';
 import ContentContainer from '../../../layout/ContentContainer/ContentContainer';
+import BurgerMenu from '../../../common/MenuModal/BurgerMenu'
 import styles from './QuizPage.module.css';
 import PCImage from '../../../../assets/images/PC_horizontal_1line_black.svg';
 import { Category, QuizBlock } from '../../../../types/quiz.types';
 
 const QuizPage: React.FC = () => {
   const { quizStates, currentQuizId, data } = useQuizContext();
+  const [menuOpen, setMenuOpen] = useState(false);
   
   useQuizIdentifier();
   useKeyboardEvents();
@@ -23,6 +25,10 @@ const QuizPage: React.FC = () => {
     handleNewGame,
     handleMainMenu
   } = useQuizGameLogic();
+
+  const handleMenuStateChange = (state: { isOpen: boolean }) => {
+    setMenuOpen(state.isOpen);
+  };
 
   if (!currentQuizId) {
     return (
@@ -65,33 +71,40 @@ const QuizPage: React.FC = () => {
   }
 
   return (
-    <div className={styles.quiz_page}>
-      <img
-        src={PCImage}
-        alt="PC horizontal line"
-        className={styles.image}
-        onError={(e) => {
-          e.currentTarget.style.display = 'none';
-          console.error('Failed to load logo image');
-        }}
+    <div className={styles.quiz_page} id="outer-container">
+      <BurgerMenu 
+        isOpen={menuOpen}
+        onStateChange={handleMenuStateChange}
       />
-     
-      <ContentContainer
-        data={data}
-        onBlockSelect={handleBlockSelectWrapper}
-        usedBlocks={currentQuizState.usedBlocks}
-      />
+      
+      <main id="page-wrap">
+        <img
+          src={PCImage}
+          alt="PC horizontal line"
+          className={styles.image}
+          onError={(e) => {
+            e.currentTarget.style.display = 'none';
+            console.error('Failed to load logo image');
+          }}
+        />
+       
+        <ContentContainer
+          data={data}
+          onBlockSelect={handleBlockSelectWrapper}
+          usedBlocks={currentQuizState.usedBlocks}
+        />
 
-      <ModalManager
-        selectedBlock={gameState.selectedBlock}
-        selectedCategory={gameState.selectedCategory}
-        isBlockUsed={gameState.isBlockUsed}
-        onModalClose={handleModalClose}
-        onBlockRetry={handleBlockRetry}
-        onSelectCategory={handleSelectCategory}
-        onNewGame={handleNewGame}
-        onMainMenu={handleMainMenu}
-      />
+        <ModalManager
+          selectedBlock={gameState.selectedBlock}
+          selectedCategory={gameState.selectedCategory}
+          isBlockUsed={gameState.isBlockUsed}
+          onModalClose={handleModalClose}
+          onBlockRetry={handleBlockRetry}
+          onSelectCategory={handleSelectCategory}
+          onNewGame={handleNewGame}
+          onMainMenu={handleMainMenu}
+        />
+      </main>
     </div>
   );
 };
