@@ -105,7 +105,7 @@ const SelectionMode: React.FC<SelectionModeProps> = ({
     if (!timerStarted) {
       return (
         <Button
-          variant={BUTTON_VARIANTS.TIMER}
+          variant={BUTTON_VARIANTS.START_TIMER}
           onClick={() => setTimerStarted(true)}
         />
       );

@@ -1,4 +1,3 @@
-// src/components/features/Quiz/QuizPage/hooks/useQuizGameLogic.ts
 import { useState, useCallback } from 'react';
 import { useQuizContext } from '../../../../../context/QuizContext';
 import { useModal } from '../../../../common/ModalManager/useModal';

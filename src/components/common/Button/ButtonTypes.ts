@@ -7,6 +7,7 @@ export interface ButtonVariants {
   SECONDARY: 'secondary';
   WARNING: 'warning';
   TIMER: 'timer';
+  START_TIMER: 'startTimer';
   HINT: 'hint';
   CONTINUE: 'continue';
   NEW_GAME: 'newGame';
@@ -29,6 +30,7 @@ export const BUTTON_VARIANTS: ButtonVariants = {
   SECONDARY: 'secondary', 
   WARNING: 'warning',
   TIMER: 'timer',
+  START_TIMER: 'startTimer',
   HINT: 'hint',
   CONTINUE: 'continue',
   NEW_GAME: 'newGame',
@@ -67,7 +69,8 @@ export const BUTTON_TEXTS: ButtonTexts = {
   [BUTTON_VARIANTS.SELECT_CATEGORY]: 'Обрати категорію',
   [BUTTON_VARIANTS.TRY_AGAIN]: 'ПОВТОРИТИ',
   [BUTTON_VARIANTS.HINT]: 'Підказка',
-  [BUTTON_VARIANTS.TIMER]: ''
+  [BUTTON_VARIANTS.TIMER]: 'Таймер', 
+  [BUTTON_VARIANTS.START_TIMER]: ''
 } as const;
 
 // Интерфейс для иконок кнопок
@@ -77,7 +80,7 @@ export interface ButtonIcons {
 
 // Объект с иконками кнопок
 export const BUTTON_ICONS: ButtonIcons = {
-  [BUTTON_VARIANTS.TIMER]: LuTimer
+  [BUTTON_VARIANTS.START_TIMER]: LuTimer
 } as const;
 
 // Замораживаем объекты чтобы предотвратить их изменение
