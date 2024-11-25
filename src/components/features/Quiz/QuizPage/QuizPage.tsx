@@ -1,4 +1,3 @@
-// src/components/features/Quiz/QuizPage/QuizPage.tsx
 import React from 'react';
 import { useQuizContext } from '../../../../context/QuizContext';
 import { useQuizGameLogic } from './hooks/useQuizGameLogic';
@@ -14,7 +13,7 @@ const QuizPage: React.FC = () => {
   const { quizStates, currentQuizId, data } = useQuizContext();
   
   useQuizIdentifier();
-  useKeyboardEvents(); // Добавляем обработчик клавиатуры
+  useKeyboardEvents();
 
   const {
     gameState,
