@@ -29,7 +29,7 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({
             height: '30px',
             left: '36px',
             top: '36px',
-            zIndex: '1100',
+            zIndex: '1',
             filter: 'saturate(2)'
         },
         bmBurgerBars: {
@@ -54,7 +54,7 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({
             width: '300px', 
             top: '0',
             left: '0',
-            zIndex: '1200'
+            zIndex: '1'
         },
         bmMenu: {
             background: '#03564a',
@@ -87,7 +87,7 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({
             left: '0',
             right: '0',
             bottom: '0',
-            zIndex: '1100'
+            zIndex: '1'
         }
     };
 
