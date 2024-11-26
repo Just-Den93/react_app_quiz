@@ -1,6 +1,6 @@
 import React from 'react';
 import { Category, QuizBlock } from '../../../types/quiz.types';
-import styles from './ContentContainer.module.css';
+import styles from './ContentContainer.module.scss';
 import CategoryRow from '../../features/Quiz/CategoryRow/CategoryRow';
 
 interface ContentContainerProps {

@@ -1,4 +1,5 @@
 import React, { useState, useCallback } from 'react';
+import styles from './QuizCard.module.scss';
 import { Category } from '../../../../types/quiz.types';
 
 interface QuizCardProps {

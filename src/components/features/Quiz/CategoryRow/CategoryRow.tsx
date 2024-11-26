@@ -1,6 +1,6 @@
 import React from 'react';
 import Item from '../Item/Item';
-import styles from './CategoryRow.module.css';
+import styles from './CategoryRow.module.scss';
 import { Category, QuizBlock } from '../../../../types/quiz.types';
 import { handleBlockSelection } from './CategoryRowUtils';
 

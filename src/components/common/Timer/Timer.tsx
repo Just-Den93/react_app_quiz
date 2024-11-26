@@ -1,6 +1,6 @@
 // src/components/common/Timer/Timer.tsx
 import React from 'react';
-import styles from './Timer.module.css';
+import styles from './Timer.module.scss';
 import { useTimer } from './timerUtils';
 
 interface TimerProps {

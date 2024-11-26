@@ -1,7 +1,7 @@
 // src/components/App/App.tsx
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import styles from './App.module.css';
+import styles from './App.module.scss';
 import { useQuizContext } from '../../context/QuizContext';
 import { useQuizData } from './hooks/useQuizData';
 import { useQuizState } from './hooks/useQuizState';

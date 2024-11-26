@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button, BUTTON_VARIANTS } from '../../../../common/Button/Button';
 import Timer from '../../../../common/Timer/Timer';
-import styles from './SelectionMode.module.css'; // Импортируем CSS-модуль
+import styles from './SelectionMode.module.scss'; // Импортируем CSS-модуль
 
 import {
   handleForceStopInternal,

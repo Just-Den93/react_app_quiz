@@ -7,7 +7,7 @@ import { ModalProvider } from './context/ModalContext';
 import Sidebar from './components/layout/Sidebar/Sidebar';
 import QuizCard from './components/features/Quiz/QuizCard/QuizCard';
 import QuizPage from './components/features/Quiz/QuizPage/QuizPage';
-import './index.css';
+import './index.scss';
 
 const rootElement = document.getElementById('root');
 if (!rootElement) throw new Error('Failed to find the root element');

@@ -1,7 +1,7 @@
 // src/components/features/Game/Messages/WarningMessage/WarningMessage.tsx
 import React from 'react';
 import { Button, BUTTON_VARIANTS } from '../../../../common/Button/Button';
-import styles from './WarningMessage.module.css';
+import styles from './WarningMessage.module.scss';
 import { IoWarning } from "react-icons/io5";
 
 interface WarningMessageProps {

@@ -1,5 +1,5 @@
 import React from 'react';
-import styles from './Modal.module.css';
+import styles from './Modal.module.scss';
 import type { QuizBlock } from '../../../types/quiz.types';
 import type { GameModeProps, GameBlock } from '../../../types/gameModes.types';
 

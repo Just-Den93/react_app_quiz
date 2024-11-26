@@ -7,7 +7,7 @@ import { ModalManager } from '../../../common/ModalManager/ModalManager';
 import { useModal } from '../../../common/ModalManager/useModal';
 import ContentContainer from '../../../layout/ContentContainer/ContentContainer';
 import BurgerMenu from '../../../common/MenuModal/BurgerMenu'
-import styles from './QuizPage.module.css';
+import styles from './QuizPage.module.scss';
 import PCImage from '../../../../assets/images/PC_horizontal_1line_black.svg';
 import { Category, QuizBlock } from '../../../../types/quiz.types';
 

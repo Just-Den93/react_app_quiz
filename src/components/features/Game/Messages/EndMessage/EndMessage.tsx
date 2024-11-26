@@ -1,7 +1,7 @@
 // src/components/features/Game/Messages/EndMessage/EndMessage.tsx
 import React from 'react';
 import { Button, BUTTON_VARIANTS } from '../../../../common/Button/Button';
-import styles from './EndMessage.module.css';
+import styles from './EndMessage.module.scss';
 import { FaAward } from 'react-icons/fa';
 import { resetQuizState } from './EndMessageUtils';
 import type { QuizState } from '../../../../../types/quiz.types';

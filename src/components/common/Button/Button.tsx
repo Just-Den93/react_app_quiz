@@ -2,7 +2,7 @@
 import React from 'react';
 import { ButtonProps } from '../../../types/button.types';
 import { BUTTON_VARIANTS, BUTTON_SIZES, BUTTON_TEXTS, BUTTON_ICONS } from './ButtonTypes';
-import styles from './Button.module.css';
+import styles from './Button.module.scss';
 
 const Button: React.FC<ButtonProps> = ({
   variant = BUTTON_VARIANTS.PRIMARY,

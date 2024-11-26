@@ -1,7 +1,7 @@
 import React from 'react';
 import { slide as Menu } from 'react-burger-menu';
 import { Button, BUTTON_VARIANTS } from '../Button/Button';
-import styles from './BurgerMenu.module.css';
+import styles from './BurgerMenu.module.scss';
 
 interface BurgerMenuProps {
     isOpen: boolean;

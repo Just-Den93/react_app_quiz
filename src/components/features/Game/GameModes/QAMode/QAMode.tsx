@@ -4,7 +4,7 @@ import { Button, BUTTON_VARIANTS } from '../../../../common/Button/Button';
 import Timer from '../../../../common/Timer/Timer';
 import { resetQAState } from './QAModeUtils';
 import type { GameModeProps } from '../../../../../types/gameModes.types';
-import styles from './QAMode.module.css';
+import styles from './QAMode.module.scss';
 
 const QAMode: React.FC<GameModeProps> = ({
   block,
@@ -24,18 +24,27 @@ const QAMode: React.FC<GameModeProps> = ({
 
   const handleSelectCategoryClick = useCallback(() => {
     if (block && block.categoryId) {
-      handleSelectCategory(block.categoryId, block.id); // Передаем правильные параметры
+      handleSelectCategory(block.categoryId, block.id);
     }
   }, [block, handleSelectCategory]);
 
   return (
     <div className={styles.qaModeContainer}>
-      {answerShown && (
-        <Button
-          variant={BUTTON_VARIANTS.SELECT_CATEGORY}
-          onClick={handleSelectCategoryClick} // Исправлено
-        />
-      )}
+      <div className={styles.selectedInfo}>
+        <div className={styles.infoCategoryName}>{categoryName}</div>
+        <div className={styles.selectedNumber}>{block.id + 1}</div>
+      </div>
+      <div className={styles.content}>
+        {/* Добавьте сюда содержимое вопроса и ответа */}
+      </div>
+      <div className={styles.controlBlock}>
+        {answerShown && (
+          <Button
+            variant={BUTTON_VARIANTS.SELECT_CATEGORY}
+            onClick={handleSelectCategoryClick}
+          />
+        )}
+      </div>
     </div>
   );
 };
