@@ -1,5 +1,6 @@
 import React from 'react';
 import styles from './Item.module.css';
+import { useModal } from '../../../common/ModalManager/useModal';
 import { QuizBlock } from '../../../../types/quiz.types';
 import { useQuizContext } from '../../../../context/QuizContext';
 import { checkIfUsed, handleBlockClick } from './itemUtils';
@@ -12,13 +13,20 @@ interface ItemProps {
 }
 
 const Item: React.FC<ItemProps> = ({ block, categoryId, onBlockSelect, isUsed }) => {
+  const { showModal } = useModal();
   const { quizStates, currentQuizId } = useQuizContext();
   const isBlockUsed = checkIfUsed(quizStates, currentQuizId, categoryId, block.id); // Используем вынесенную функцию
 
+  const handleClick = () => {
+    console.log('Item clicked, showing modal');  // Добавим для отладки
+    onBlockSelect({ ...block, categoryId });
+    showModal('modal');
+  };
+
   return (
     <button
-      className={`${styles.box} ${isBlockUsed || isUsed ? styles.used : ''}`}
-      onClick={() => handleBlockClick(block, categoryId, onBlockSelect)} // Используем вынесенную функцию
+      className={`${styles.box} ${isUsed ? styles.used : ''}`}
+      onClick={handleClick}
     >
       {block.id + 1}
     </button>

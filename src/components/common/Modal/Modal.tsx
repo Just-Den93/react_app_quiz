@@ -30,7 +30,7 @@ const Modal: React.FC<ModalProps> = ({
   onSelectCategory,
   isBlockUsed,
   warningMessage,
-  children, // Добавляем children
+  children,
 }) => {
   if (!block) {
     return null;
@@ -45,33 +45,28 @@ const Modal: React.FC<ModalProps> = ({
     'correct answer': block['correct answer'] ?? 'Ответ не указан',
   };
 
+  // Убираем рендеринг children и меняем условие рендеринга контента
   return (
     <div className={`${styles.modal} ${styles.show}`} onClick={onClose}>
       <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
         <span className={styles.closeButton} onClick={onClose}>
           &times;
         </span>
-        {children ? ( // Если есть children, рендерим их
-          children
-        ) : isBlockUsed ? (
+        {isBlockUsed ? (
           warningMessage
         ) : (
-          ModeComponent && (
-            <ModeComponent
-              block={gameBlock}
-              categoryName={categoryName}
-              showAnswer={answerState?.showAnswer || false}
-              setTimerStarted={timerHandlers?.startTimer || (() => {})}
-              timerStarted={timerState?.timerStarted || false}
-              timerEnded={timerState?.timerEnded || false}
-              handleTimerEnd={timerHandlers?.endTimer || (() => {})}
-              handleShowAnswer={answerHandlers?.showAnswer || (() => {})}
-              handleSelectCategory={() =>
-                onSelectCategory?.(gameBlock.categoryId, gameBlock.id)
-              }
-              handleForceStop={timerHandlers?.resetTimer || (() => {})}
-            />
-          )
+          <ModeComponent
+            block={gameBlock}
+            categoryName={categoryName}
+            showAnswer={answerState?.showAnswer || false}
+            setTimerStarted={timerHandlers?.startTimer}
+            timerStarted={timerState?.timerStarted}
+            timerEnded={timerState?.timerEnded}
+            handleTimerEnd={timerHandlers?.endTimer}
+            handleShowAnswer={answerHandlers?.showAnswer}
+            handleSelectCategory={() => onSelectCategory?.(gameBlock.categoryId, gameBlock.id)}
+            handleForceStop={timerHandlers?.resetTimer}
+          />
         )}
       </div>
     </div>

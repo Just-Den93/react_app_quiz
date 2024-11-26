@@ -31,12 +31,12 @@
 .continue,
 .mainMenu,
 .newGame,
-.settings .timer {
+.settings,
+.timer {
   font-size: 1.1rem;
   font-weight: 700;
   letter-spacing: 1px;
   padding: 1rem;
-  /* border-bottom: 1px solid rgba(255, 255, 255, 0.1); */
   opacity: 0;
   transform: translateX(-20px);
   animation: slideIn 0.3s ease forwards;
@@ -57,6 +57,11 @@
 
 .settings {
   animation-delay: 0.5s;
+  border-bottom: none;
+}
+
+.timer {
+  animation-delay: 0.6s;
   border-bottom: none;
 }
 

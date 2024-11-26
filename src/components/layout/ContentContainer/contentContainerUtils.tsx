@@ -11,7 +11,7 @@ import CategoryRow from '../../features/Quiz/CategoryRow/CategoryRow';
  */
 export function renderCategoryRows(
   data: Category[],
-  onBlockSelect: (block: QuizBlock, category: Category) => void
+  onBlockSelect: (block: QuizBlock & { categoryId: string }) => void // Обновляем тип
 ): React.ReactElement[] {
   return data.map((category: Category) => (
     <CategoryRow
@@ -38,9 +38,10 @@ export interface CategoryRowRenderOptions {
  * @param options Additional rendering options
  * @returns Array of rendered CategoryRow components
  */
+
 export function renderCategoryRowsWithOptions(
   data: Category[],
-  onBlockSelect: (block: QuizBlock, category: Category) => void,
+  onBlockSelect: (block: QuizBlock & { categoryId: string }) => void, // Обновляем тип
   options: CategoryRowRenderOptions = {}
 ): React.ReactElement[] {
   const {

@@ -11,7 +11,13 @@ interface GameState {
 }
 
 export function useQuizGameLogic() {
-  const { quizStates, currentQuizId, markBlockAsUsed, setShowQuizPage } = useQuizContext();
+  const { 
+    quizStates, 
+    currentQuizId, 
+    markBlockAsUsed, 
+    setShowQuizPage,
+    setQuizStates  // Добавить это
+  } = useQuizContext();
   const { showModal, hideModal } = useModal();
 
   const [selectedBlock, setSelectedBlock] = useState<QuizBlock | null>(null);
@@ -25,7 +31,10 @@ export function useQuizGameLogic() {
     setIsBlockUsed
   };
 
-  const handleBlockSelect = useCallback((block: QuizBlock, category: Category) => {
+  const handleBlockSelect = useCallback((
+    block: QuizBlock & { categoryId: string }, 
+    category: Category
+  ) => {
     setSelectedBlock(block);
     setSelectedCategory(category);
     setIsBlockUsed(!!quizStates[currentQuizId!]?.usedBlocks?.[category.id]?.includes(block.id));
@@ -44,9 +53,23 @@ export function useQuizGameLogic() {
   }, [currentQuizId, markBlockAsUsed, handleModalClose]);
 
   const handleNewGame = useCallback(() => {
+    if (!currentQuizId) return;
+    
+    setQuizStates(prevStates => {
+      const updatedStates = {
+        ...prevStates,
+        [currentQuizId]: {
+          ...prevStates[currentQuizId],
+          usedBlocks: {}
+        }
+      };
+      localStorage.setItem('quizStates', JSON.stringify(updatedStates));
+      return updatedStates;
+    });
+    
     handleModalClose();
     hideModal('endMessage');
-  }, [handleModalClose, hideModal]);
+  }, [currentQuizId, handleModalClose, hideModal, setQuizStates]);
 
   const handleMainMenu = useCallback(() => {
     setShowQuizPage(false);

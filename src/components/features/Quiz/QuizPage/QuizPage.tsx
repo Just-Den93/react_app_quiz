@@ -4,6 +4,7 @@ import { useQuizGameLogic } from './hooks/useQuizGameLogic';
 import { useQuizIdentifier } from './hooks/useQuizIdentifier';
 import { useKeyboardEvents } from './hooks/useKeyboardEvents';
 import { ModalManager } from '../../../common/ModalManager/ModalManager';
+import { useModal } from '../../../common/ModalManager/useModal';
 import ContentContainer from '../../../layout/ContentContainer/ContentContainer';
 import BurgerMenu from '../../../common/MenuModal/BurgerMenu'
 import styles from './QuizPage.module.css';
@@ -11,6 +12,7 @@ import PCImage from '../../../../assets/images/PC_horizontal_1line_black.svg';
 import { Category, QuizBlock } from '../../../../types/quiz.types';
 
 const QuizPage: React.FC = () => {
+  const { hideModal } = useModal();
   const { quizStates, currentQuizId, data } = useQuizContext();
   const [menuOpen, setMenuOpen] = useState(false);
   
@@ -46,11 +48,23 @@ const QuizPage: React.FC = () => {
     completedGames: 0
   };
 
-  const handleBlockSelectWrapper = (block: QuizBlock, category: Category) => {
-    if (!block.id || !category.id) {
-      console.error('Invalid block or category data');
+  const handleBlockSelectWrapper = (block: QuizBlock & { categoryId: string }) => {
+    console.log('Block data:', block);
+    
+    if (!data) {
+      console.error('Quiz data is not loaded');
       return;
     }
+  
+    const category = data.find(cat => cat.id === block.categoryId);
+    console.log('Found category:', category);
+  
+    // Изменяем проверку, убирая проверку block.id === 0
+    if (block.categoryId === undefined || !category) {
+      console.error('Category not found');
+      return;
+    }
+  
     handleBlockSelect(block, category);
   };
 
@@ -109,16 +123,19 @@ const QuizPage: React.FC = () => {
           usedBlocks={currentQuizState.usedBlocks}
         />
 
-        <ModalManager
-          selectedBlock={gameState.selectedBlock}
-          selectedCategory={gameState.selectedCategory}
-          isBlockUsed={gameState.isBlockUsed}
-          onModalClose={handleModalClose}
-          onBlockRetry={handleBlockRetry}
-          onSelectCategory={handleSelectCategory}
-          onNewGame={handleNewGame}
-          onMainMenu={handleMainMenu}
-        />
+<ModalManager
+  selectedBlock={gameState.selectedBlock}
+  selectedCategory={gameState.selectedCategory}
+  isBlockUsed={gameState.isBlockUsed}
+  onModalClose={() => {
+    handleModalClose();
+    hideModal('modal'); // Добавить этот вызов
+  }}
+  onBlockRetry={handleBlockRetry}
+  onSelectCategory={handleSelectCategory}
+  onNewGame={handleNewGame}
+  onMainMenu={handleMainMenu}
+/>
       </main>
     </div>
   );

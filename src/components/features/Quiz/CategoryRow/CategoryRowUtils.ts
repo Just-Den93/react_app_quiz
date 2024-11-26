@@ -2,9 +2,8 @@ import { QuizBlock, Category } from '../../../../types/quiz.types'; // Импо�
 
 // Функция для обработки выбора блока и категории
 export function handleBlockSelection(
-  blockData: QuizBlock, // Блок викторины
-  category: Category, // Категория викторины
-  onBlockSelect: (blockData: QuizBlock, category: Category) => void // Колбэк-функция
+  blockData: QuizBlock & { categoryId: string },
+  onBlockSelect: (blockData: QuizBlock & { categoryId: string }) => void
 ): void {
-  onBlockSelect(blockData, category); // Передаем данные блока и категорию в функцию обратного вызова
+  onBlockSelect(blockData);
 }
