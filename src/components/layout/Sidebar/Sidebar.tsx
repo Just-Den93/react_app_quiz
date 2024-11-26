@@ -1,6 +1,6 @@
 import React from 'react';
 import { FaBars } from 'react-icons/fa';
-import styles from './Sidebar.module.css';
+import styles from './Sidebar.module.scss';
 
 interface SidebarProps {}
 
