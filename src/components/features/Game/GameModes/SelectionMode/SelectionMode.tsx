@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button, BUTTON_VARIANTS } from '../../../../common/Button/Button';
-import Timer from '../../../../common/Timer/Timer';
+import Timer from '../../../../common/Timers/ClassicTimer/Timer';
 import styles from './SelectionMode.module.scss'; // Импортируем CSS-модуль
 
 import {

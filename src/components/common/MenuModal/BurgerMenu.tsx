@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { slide as Menu } from 'react-burger-menu';
 import { Button, BUTTON_VARIANTS } from '../Button/Button';
+import CircleTimer from '../../common/Timers/CircleTimer/CircleTimer';
 import styles from './BurgerMenu.module.scss';
 
 interface BurgerMenuProps {
@@ -22,6 +23,17 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({
     onSettings,
     onTimer
 }) => {
+	const [showTimer, setShowTimer] = useState(false);
+
+	const handleTimerClick = () => {
+		 setShowTimer(true);
+		 onTimer();
+	};
+
+	const handleTimerClose = () => {
+		 setShowTimer(false);
+	};
+
     const menuStyles = {
         bmBurgerButton: {
             position: 'fixed',
@@ -106,6 +118,7 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({
     };
 
     return (
+		<>
         <Menu 
             isOpen={isOpen}
             onStateChange={onStateChange}
@@ -145,11 +158,13 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({
                 <div className={styles.buttonItem}> 
                     <Button
                         variant={BUTTON_VARIANTS.TIMER}
-                        onClick={onTimer}
+                        onClick={handleTimerClick}
                     />
                 </div>
             </div>
         </Menu>
+		  {showTimer && <CircleTimer onClose={handleTimerClose} duration={30} />}
+		  </>
     );
 };
 

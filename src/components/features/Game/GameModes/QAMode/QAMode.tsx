@@ -1,7 +1,7 @@
 // src/components/features/Game/GameModes/QAMode/QAMode.tsx
 import React, { useState, useEffect, useCallback } from 'react';
 import { Button, BUTTON_VARIANTS } from '../../../../common/Button/Button';
-import Timer from '../../../../common/Timer/Timer';
+import Timer from '../../../../common/Timers/ClassicTimer/Timer';
 import { resetQAState } from './QAModeUtils';
 import type { GameModeProps } from '../../../../../types/gameModes.types';
 import styles from './QAMode.module.scss';
