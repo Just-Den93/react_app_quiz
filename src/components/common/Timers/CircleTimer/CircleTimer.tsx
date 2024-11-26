@@ -1,5 +1,5 @@
-// src/components/common/CircleTimer/CircleTimer.tsx
-import React, { useEffect, useState, useCallback } from 'react';
+// src/components/common/Timers/CircleTimer/CircleTimer.tsx
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { Button, BUTTON_VARIANTS } from '../../Button/Button';
 import { IoClose } from "react-icons/io5";
 import styles from './CircleTimer.module.scss';
@@ -14,56 +14,112 @@ const CircleTimer: React.FC<CircleTimerProps> = ({
   duration = 30 
 }) => {
   const [remainingTime, setRemainingTime] = useState(duration);
-  const [angle, setAngle] = useState(360);
   const [isRunning, setIsRunning] = useState(false);
-  const [startTime, setStartTime] = useState<number | null>(null);
-  const [animationFrameId, setAnimationFrameId] = useState<number | null>(null);
+  const startTimeRef = useRef<number | null>(null);
+  const animationFrameRef = useRef<number | null>(null);
+  const pausedTimeRef = useRef<number | null>(null);
+
+  const firstSemicircleRef = useRef<HTMLDivElement>(null);
+  const secondSemicircleRef = useRef<HTMLDivElement>(null);
+  const thirdSemicircleRef = useRef<HTMLDivElement>(null);
 
   const stopTimer = useCallback(() => {
-    if (animationFrameId) {
-      cancelAnimationFrame(animationFrameId);
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current);
+      animationFrameRef.current = null;
     }
     setIsRunning(false);
-    setStartTime(null);
-  }, [animationFrameId]);
+    startTimeRef.current = null;
+  }, []);
 
   const startTimer = useCallback(() => {
-    setStartTime(Date.now());
+    startTimeRef.current = Date.now();
+    pausedTimeRef.current = null;
     setIsRunning(true);
     setRemainingTime(duration);
-    setAngle(360);
+
+    if (firstSemicircleRef.current) {
+      firstSemicircleRef.current.style.transform = 'rotate(180deg)';
+    }
+    if (secondSemicircleRef.current) {
+      secondSemicircleRef.current.style.transform = 'rotate(180deg)';
+    }
+    if (thirdSemicircleRef.current) {
+      thirdSemicircleRef.current.style.display = 'none';
+    }
   }, [duration]);
 
+  const updateProgress = useCallback((angle: number) => {
+    if (!firstSemicircleRef.current || !secondSemicircleRef.current || !thirdSemicircleRef.current) return;
+
+    if (angle > 180) {
+      firstSemicircleRef.current.style.transform = 'rotate(180deg)';
+      secondSemicircleRef.current.style.transform = `rotate(${angle}deg)`;
+      thirdSemicircleRef.current.style.display = 'none';
+    } else {
+      firstSemicircleRef.current.style.transform = `rotate(${angle}deg)`;
+      secondSemicircleRef.current.style.transform = `rotate(${angle}deg)`;
+      thirdSemicircleRef.current.style.display = 'block';
+    }
+  }, []);
+
   useEffect(() => {
-    if (!isRunning || !startTime) return;
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        if (isRunning && startTimeRef.current) {
+          pausedTimeRef.current = Date.now();
+          if (animationFrameRef.current) {
+            cancelAnimationFrame(animationFrameRef.current);
+            animationFrameRef.current = null;
+          }
+        }
+      } else {
+        if (isRunning && startTimeRef.current && pausedTimeRef.current) {
+          const pauseDuration = Date.now() - pausedTimeRef.current;
+          startTimeRef.current += pauseDuration;
+          pausedTimeRef.current = null;
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [isRunning]);
+
+  useEffect(() => {
+    if (!isRunning || !startTimeRef.current) return;
 
     const animate = () => {
+      if (!startTimeRef.current) return;
+      
       const currentTime = Date.now();
-      const elapsed = currentTime - startTime;
+      const elapsed = currentTime - startTimeRef.current;
       const remaining = Math.max(0, duration - elapsed / 1000);
-      const currentAngle = (remaining / duration) * 360;
+      const angle = (remaining / duration) * 360;
 
       setRemainingTime(remaining);
-      setAngle(currentAngle);
+      updateProgress(angle);
 
       if (remaining > 0) {
-        const id = requestAnimationFrame(animate);
-        setAnimationFrameId(id);
+        animationFrameRef.current = requestAnimationFrame(animate);
       } else {
         stopTimer();
       }
     };
 
-    const id = requestAnimationFrame(animate);
-    setAnimationFrameId(id);
+    animationFrameRef.current = requestAnimationFrame(animate);
 
     return () => {
-      if (animationFrameId) {
-        cancelAnimationFrame(animationFrameId);
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+        animationFrameRef.current = null;
       }
     };
-  }, [isRunning, startTime, duration, stopTimer]);
+  }, [isRunning, duration, stopTimer, updateProgress]);
 
+  // Расчет минут и секунд
   const minutes = Math.floor(remainingTime / 60);
   const seconds = Math.floor(remainingTime % 60);
 
@@ -75,25 +131,9 @@ const CircleTimer: React.FC<CircleTimerProps> = ({
         </button>
 
         <div className={styles.circleContainer}>
-          <div 
-            className={styles.semicircleLeft}
-            style={{ 
-              transform: `rotate(${Math.min(180, angle)}deg)`,
-            }}
-          />
-          <div 
-            className={styles.semicircleRight}
-            style={{ 
-              transform: `rotate(${Math.max(180, angle)}deg)`,
-            }}
-          />
-          <div 
-            className={styles.maskCircle}
-            style={{ 
-              display: angle <= 180 ? 'block' : 'none',
-              transform: `rotate(${angle}deg)`
-            }}
-          />
+          <div ref={firstSemicircleRef} className={styles.semicircle} />
+          <div ref={secondSemicircleRef} className={styles.semicircle} />
+          <div ref={thirdSemicircleRef} className={styles.semicircle} />
           <div className={styles.innermostCircle}>
             <div className={styles.timerContainer}>
               <div className={styles.timer}>
